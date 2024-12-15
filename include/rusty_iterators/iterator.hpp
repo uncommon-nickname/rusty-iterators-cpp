@@ -1,6 +1,6 @@
 #pragma once
 
-#include "iterator_interface.hpp"
+#include "interface.hpp"
 
 #include <optional>
 
@@ -17,8 +17,8 @@ class RustyIter
   public:
     explicit RustyIter(Container& it) : head(it.begin()), tail(it.end() - 1), size(it.size()) {}
 
-    auto nextFront() -> std::optional<Item>;
     auto nextBack() -> std::optional<Item>;
+    auto nextFront() -> std::optional<Item>;
     [[nodiscard]] inline auto sizeHint() const -> size_t;
 
   private:
@@ -27,21 +27,6 @@ class RustyIter
     size_t size;
 };
 } // namespace rusty_iterators::iterator
-
-template <class Container>
-    requires std::ranges::range<Container>
-auto rusty_iterators::iterator::RustyIter<Container>::nextFront() -> std::optional<Item>
-{
-    [[unlikely]] if (head == tail + 1)
-    {
-        return std::nullopt;
-    }
-
-    auto item = *head;
-    head += 1;
-
-    return std::make_optional(std::move(item));
-}
 
 template <class Container>
     requires std::ranges::range<Container>
@@ -55,7 +40,22 @@ auto rusty_iterators::iterator::RustyIter<Container>::nextBack() -> std::optiona
     auto item = *tail;
     tail -= 1;
 
-    return std::make_optional(std::move(item));
+    return std::make_optional(std::forward<Item>(item));
+}
+
+template <class Container>
+    requires std::ranges::range<Container>
+auto rusty_iterators::iterator::RustyIter<Container>::nextFront() -> std::optional<Item>
+{
+    [[unlikely]] if (head == tail + 1)
+    {
+        return std::nullopt;
+    }
+
+    auto item = *head;
+    head += 1;
+
+    return std::make_optional(std::forward<Item>(item));
 }
 
 template <class Container>

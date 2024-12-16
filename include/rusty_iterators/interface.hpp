@@ -1,5 +1,6 @@
 #pragma once
 
+#include "filter.hpp"
 #include "map.hpp"
 
 #include <stdexcept>
@@ -7,6 +8,8 @@
 
 namespace rusty_iterators::interface
 {
+using iterator::Filter;
+using iterator::IsFilterFunctor;
 using iterator::Map;
 
 template <class T, class Derived>
@@ -26,6 +29,10 @@ class IterInterface
     template <class Functor>
         requires std::invocable<Functor, T>
     [[nodiscard]] auto map(Functor&& f) -> Map<T, Functor, Derived>;
+
+    template <class Functor>
+        requires IsFilterFunctor<T, Functor>
+    [[nodiscard]] auto filter(Functor&& f) -> Filter<T, Functor, Derived>;
 
   private:
     [[nodiscard]] inline auto self() -> Derived& { return static_cast<Derived&>(*this); }
@@ -61,4 +68,13 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::map(Functor&& f)
     -> Map<T, Functor, Derived>
 {
     return Map<T, Functor, Derived>{std::forward<Derived>(self()), std::forward<Functor>(f)};
+}
+
+template <class T, class Derived>
+template <class Functor>
+    requires rusty_iterators::iterator::IsFilterFunctor<T, Functor>
+auto rusty_iterators::interface::IterInterface<T, Derived>::filter(Functor&& f)
+    -> Filter<T, Functor, Derived>
+{
+    return Filter<T, Functor, Derived>{std::forward<Derived>(self()), std::forward<Functor>(f)};
 }

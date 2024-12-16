@@ -15,6 +15,15 @@ TEST(TestIteratorIntegration, TestFilterMap)
     EXPECT_THAT(it.collect(), ElementsAreArray(std::array{4, 16}));
 }
 
+TEST(TestIteratorIntegration, TestMapFilter)
+{
+    auto vec = std::vector{1, 2, 3, 4};
+    auto it =
+        RustyIter{vec}.map([](auto x) { return x * x; }).filter([](auto x) { return x % 2 == 0; });
+
+    EXPECT_THAT(it.collect(), ElementsAreArray(std::array{4, 16}));
+}
+
 TEST(TestIteratorIntegration, TestMultipleMaps)
 {
     auto vec = std::vector{1, 2, 3};
@@ -24,13 +33,4 @@ TEST(TestIteratorIntegration, TestMultipleMaps)
                   .map([](auto x) { return std::format("Hello {}", x); });
 
     EXPECT_THAT(it.collect(), ElementsAreArray(std::array{"Hello 4", "Hello 7", "Hello 12"}));
-}
-
-TEST(TestIteratorIntegration, TestMapFilter)
-{
-    auto vec = std::vector{1, 2, 3, 4};
-    auto it =
-        RustyIter{vec}.map([](auto x) { return x * x; }).filter([](auto x) { return x % 2 == 0; });
-
-    EXPECT_THAT(it.collect(), ElementsAreArray(std::array{4, 16}));
 }

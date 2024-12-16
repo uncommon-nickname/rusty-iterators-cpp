@@ -6,7 +6,7 @@
 using ::rusty_iterators::iterator::RustyIter;
 using ::testing::ElementsAreArray;
 
-TEST(TestIteratorCopying, TestCopyHasItsOwnPointers)
+TEST(TestIterator, TestCopyHasItsOwnPointers)
 {
     auto vec = std::vector{1, 2, 3, 4};
 
@@ -17,7 +17,7 @@ TEST(TestIteratorCopying, TestCopyHasItsOwnPointers)
     EXPECT_THAT(cp.collect(), ElementsAreArray(std::array{1, 2, 3, 4}));
 }
 
-TEST(TestIteratorCopying, TestCopySavesIteratorState)
+TEST(TestIterator, TestCopySavesIteratorState)
 {
     auto vec = std::vector{1, 2, 3, 4};
 
@@ -32,7 +32,7 @@ TEST(TestIteratorCopying, TestCopySavesIteratorState)
     EXPECT_THAT(y, ElementsAreArray(std::array{2, 3, 4}));
 }
 
-TEST(TestIteratorNextFront, NextFrontReturnsItemsFromTheHead)
+TEST(TestIterator, NextFrontReturnsItemsFromTheHead)
 {
     auto vec = std::vector{1, 2, 3};
     auto it  = RustyIter{vec};
@@ -41,7 +41,7 @@ TEST(TestIteratorNextFront, NextFrontReturnsItemsFromTheHead)
     ASSERT_EQ(it.nextFront(), 2);
 }
 
-TEST(TestIteratorNextFront, NextFrontReturnsNoneWhenDepleted)
+TEST(TestIterator, NextFrontReturnsNoneWhenDepleted)
 {
     auto vec = std::vector{1};
     auto it  = RustyIter{vec};
@@ -50,7 +50,7 @@ TEST(TestIteratorNextFront, NextFrontReturnsNoneWhenDepleted)
     ASSERT_EQ(it.nextFront(), std::nullopt);
 }
 
-TEST(TestIteratorNextBack, NextBackReturnsItemsFromTheTail)
+TEST(TestIterator, NextBackReturnsItemsFromTheTail)
 {
     auto vec = std::vector{1, 2, 3};
     auto it  = RustyIter{vec};
@@ -59,7 +59,7 @@ TEST(TestIteratorNextBack, NextBackReturnsItemsFromTheTail)
     ASSERT_EQ(it.nextBack(), 2);
 }
 
-TEST(TestIteratorNextBack, NextBackReturnsNoneWhenDepleted)
+TEST(TestIterator, NextBackReturnsNoneWhenDepleted)
 {
     auto vec = std::vector{1};
     auto it  = RustyIter{vec};
@@ -68,7 +68,7 @@ TEST(TestIteratorNextBack, NextBackReturnsNoneWhenDepleted)
     ASSERT_EQ(it.nextBack(), std::nullopt);
 }
 
-TEST(TestIteratorPointers, DepletingIteratorFromBothSides)
+TEST(TestIterator, DepletingIteratorFromBothSides)
 {
     auto vec = std::vector{1, 2, 3, 4};
     auto it  = RustyIter{vec};
@@ -79,7 +79,7 @@ TEST(TestIteratorPointers, DepletingIteratorFromBothSides)
     EXPECT_THAT(it.collect(), ElementsAreArray(std::array{2, 3}));
 }
 
-TEST(TestIteratorCollection, CollectingAlreadyCollected)
+TEST(TestIterator, CollectingAlreadyCollected)
 {
     auto vec = std::vector{1, 2, 3};
     auto it  = RustyIter{vec};
@@ -88,7 +88,7 @@ TEST(TestIteratorCollection, CollectingAlreadyCollected)
     EXPECT_THAT(it.collect(), ElementsAreArray(std::array<int, 0>{}));
 }
 
-TEST(TestIteratorCollection, CollectedItemsAreReferences)
+TEST(TestIterator, CollectedItemsAreReferences)
 {
     auto vec = std::vector{1, 2, 3};
     auto it  = RustyIter{vec};
@@ -96,4 +96,12 @@ TEST(TestIteratorCollection, CollectedItemsAreReferences)
     auto result = it.collect();
 
     ASSERT_EQ(&result[0].get(), &vec[0]);
+}
+
+TEST(TestIterator, SizeHintReturnsSizeOfTheContainer)
+{
+    auto vec = std::vector{1, 2, 3};
+    auto it  = RustyIter{vec};
+
+    ASSERT_EQ(it.sizeHint(), 3);
 }

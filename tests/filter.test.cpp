@@ -31,3 +31,11 @@ TEST(TestFilterIterator, CollectedValuesAreFiltered)
 
     EXPECT_THAT(it.collect(), ElementsAreArray(std::array{2, 4}));
 }
+
+TEST(TestFilterIterator, SizeHintReturnsSizeOfUnderlyingIterator)
+{
+    auto vec = std::vector{1, 2, 3};
+    auto it  = RustyIter{vec}.filter([](auto x) { return x % 2 == 0; });
+
+    ASSERT_EQ(it.sizeHint(), 3);
+}

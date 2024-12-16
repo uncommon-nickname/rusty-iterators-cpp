@@ -33,3 +33,11 @@ TEST(TestMapIterator, CollectedValuesHaveCallableApplied)
 
     EXPECT_THAT(it.collect(), ElementsAreArray(std::array{1, 4, 9, 16}));
 }
+
+TEST(TestMapIterator, SizeHintReturnsSizeOfUnderlyingIterator)
+{
+    auto vec = std::vector{1, 2, 3};
+    auto it  = RustyIter{vec}.map([](auto x) { return x * x; });
+
+    ASSERT_EQ(it.sizeHint(), 3);
+}

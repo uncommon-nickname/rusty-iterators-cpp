@@ -39,7 +39,7 @@ auto rusty_iterators::iterator::Map<Tin, Functor, Other>::nextFront() -> std::op
     {
         return std::make_optional(func(item.value()));
     }
-    return item;
+    return std::nullopt;
 }
 
 template <class Tin, class Functor, class Other>
@@ -52,7 +52,7 @@ auto rusty_iterators::iterator::Map<Tin, Functor, Other>::nextBack() -> std::opt
     {
         return std::make_optional(func(item.value()));
     }
-    return item;
+    return std::nullopt;
 }
 
 template <class Tin, class Functor, class Other>

@@ -21,7 +21,7 @@ class Map : public IterInterface<std::invoke_result_t<Functor, Tin>, Map<Tin, Fu
 
     auto nextFront() -> std::optional<Tout>;
     auto nextBack() -> std::optional<Tout>;
-    auto sizeHint() -> size_t;
+    [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;
 
   private:
     Other it;
@@ -57,7 +57,8 @@ auto rusty_iterators::iterator::Map<Tin, Functor, Other>::nextBack() -> std::opt
 
 template <class Tin, class Functor, class Other>
     requires std::invocable<Functor, Tin>
-auto rusty_iterators::iterator::Map<Tin, Functor, Other>::sizeHint() -> size_t
+auto rusty_iterators::iterator::Map<Tin, Functor, Other>::sizeHint() const -> std::optional<size_t>
 {
+    // Map does not change the size of the underlying iterator.
     return it.sizeHint();
 }

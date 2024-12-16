@@ -26,7 +26,7 @@ class RustyIter : public interface::IterInterface<Item<Container>, RustyIter<Con
 
     auto nextBack() -> std::optional<T>;
     auto nextFront() -> std::optional<T>;
-    [[nodiscard]] inline auto sizeHint() const -> size_t;
+    [[nodiscard]] inline auto sizeHint() const -> std::optional<size_t>;
 
   private:
     Iterator head;
@@ -67,7 +67,8 @@ auto rusty_iterators::iterator::RustyIter<Container>::nextFront() -> std::option
 
 template <class Container>
     requires std::ranges::range<Container>
-inline auto rusty_iterators::iterator::RustyIter<Container>::sizeHint() const -> size_t
+inline auto rusty_iterators::iterator::RustyIter<Container>::sizeHint() const
+    -> std::optional<size_t>
 {
-    return size;
+    return std::make_optional(size);
 }

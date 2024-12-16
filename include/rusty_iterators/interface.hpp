@@ -2,6 +2,7 @@
 
 #include "map.hpp"
 
+#include <stdexcept>
 #include <vector>
 
 namespace rusty_iterators::interface
@@ -37,13 +38,17 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::collect() -> std::ve
     auto collection = std::vector<T>{};
     auto size       = self().sizeHint();
 
-    collection.reserve(size);
+    if (!size.has_value())
+    {
+        throw std::length_error{"Collecting an infinite iterator will result in infinite loop."};
+    }
 
+    collection.reserve(size.value());
     auto nextItem = self().nextFront();
 
     [[likely]] while (nextItem.has_value())
     {
-        collection.push_back(nextItem.value());
+        collection.push_back(std::move(nextItem.value()));
         nextItem = self().nextFront();
     }
     return std::move(collection);

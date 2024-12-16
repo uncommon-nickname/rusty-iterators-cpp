@@ -22,7 +22,7 @@ TEST(TestIterator, TestCopySavesIteratorState)
     auto vec = std::vector{1, 2, 3, 4};
 
     auto it = RustyIter{vec};
-    it.nextFront();
+    it.next();
     auto cp = it;
 
     auto x = it.collect();
@@ -32,51 +32,22 @@ TEST(TestIterator, TestCopySavesIteratorState)
     EXPECT_THAT(y, ElementsAreArray(std::array{2, 3, 4}));
 }
 
-TEST(TestIterator, NextFrontReturnsItemsFromTheHead)
+TEST(TestIterator, NextReturnsItemsFromTheHead)
 {
     auto vec = std::vector{1, 2, 3};
     auto it  = RustyIter{vec};
 
-    ASSERT_EQ(it.nextFront(), 1);
-    ASSERT_EQ(it.nextFront(), 2);
+    ASSERT_EQ(it.next(), 1);
+    ASSERT_EQ(it.next(), 2);
 }
 
-TEST(TestIterator, NextFrontReturnsNoneWhenDepleted)
+TEST(TestIterator, NextReturnsNoneWhenDepleted)
 {
     auto vec = std::vector{1};
     auto it  = RustyIter{vec};
 
-    ASSERT_EQ(it.nextFront(), 1);
-    ASSERT_EQ(it.nextFront(), std::nullopt);
-}
-
-TEST(TestIterator, NextBackReturnsItemsFromTheTail)
-{
-    auto vec = std::vector{1, 2, 3};
-    auto it  = RustyIter{vec};
-
-    ASSERT_EQ(it.nextBack(), 3);
-    ASSERT_EQ(it.nextBack(), 2);
-}
-
-TEST(TestIterator, NextBackReturnsNoneWhenDepleted)
-{
-    auto vec = std::vector{1};
-    auto it  = RustyIter{vec};
-
-    ASSERT_EQ(it.nextBack(), 1);
-    ASSERT_EQ(it.nextBack(), std::nullopt);
-}
-
-TEST(TestIterator, DepletingIteratorFromBothSides)
-{
-    auto vec = std::vector{1, 2, 3, 4};
-    auto it  = RustyIter{vec};
-
-    ASSERT_EQ(it.nextFront(), 1);
-    ASSERT_EQ(it.nextBack(), 4);
-
-    EXPECT_THAT(it.collect(), ElementsAreArray(std::array{2, 3}));
+    ASSERT_EQ(it.next(), 1);
+    ASSERT_EQ(it.next(), std::nullopt);
 }
 
 TEST(TestIterator, CollectingAlreadyCollected)
@@ -104,4 +75,32 @@ TEST(TestIterator, SizeHintReturnsSizeOfTheContainer)
     auto it  = RustyIter{vec};
 
     ASSERT_EQ(it.sizeHint(), 3);
+}
+
+TEST(TestIterator, SizeHintOnPartiallyCollectedIterator)
+{
+    auto vec = std::vector{1, 2, 3};
+    auto it  = RustyIter{vec};
+
+    it.next();
+
+    ASSERT_EQ(it.sizeHint(), 2);
+}
+
+TEST(TestIterator, SizeHintOnCollectedIterator)
+{
+    auto vec = std::vector{1, 2, 3};
+    auto it  = RustyIter{vec};
+
+    auto _ = it.collect();
+
+    ASSERT_EQ(it.sizeHint(), 0);
+}
+
+TEST(TestIterator, CountReturnsRealAmountOfElements)
+{
+    auto vec = std::vector{1, 2, 3, 4};
+    auto it  = RustyIter{vec};
+
+    ASSERT_EQ(it.count(), 4);
 }

@@ -22,45 +22,28 @@ class RustyIter : public interface::IterInterface<Item<Container>, RustyIter<Con
     using Iterator = typename Container::iterator;
 
   public:
-    explicit RustyIter(Container& it) : head(it.begin()), tail(it.end() - 1), size(it.size()) {}
+    explicit RustyIter(Container& it) : ptr(it.begin()), end(it.end()) {}
 
-    auto nextBack() -> std::optional<T>;
-    auto nextFront() -> std::optional<T>;
+    auto next() -> std::optional<T>;
     [[nodiscard]] inline auto sizeHint() const -> std::optional<size_t>;
 
   private:
-    Iterator head;
-    Iterator tail;
-    size_t size;
+    Iterator ptr;
+    Iterator end;
 };
 } // namespace rusty_iterators::iterator
 
 template <class Container>
     requires std::ranges::range<Container>
-auto rusty_iterators::iterator::RustyIter<Container>::nextBack() -> std::optional<T>
+auto rusty_iterators::iterator::RustyIter<Container>::next() -> std::optional<T>
 {
-    [[unlikely]] if (tail == head - 1)
+    [[unlikely]] if (ptr == end)
     {
         return std::nullopt;
     }
 
-    auto& item = *tail;
-    tail -= 1;
-
-    return std::make_optional(std::cref(item));
-}
-
-template <class Container>
-    requires std::ranges::range<Container>
-auto rusty_iterators::iterator::RustyIter<Container>::nextFront() -> std::optional<T>
-{
-    [[unlikely]] if (head == tail + 1)
-    {
-        return std::nullopt;
-    }
-
-    auto& item = *head;
-    head += 1;
+    auto& item = *ptr;
+    ptr += 1;
 
     return std::make_optional(std::cref(item));
 }
@@ -70,5 +53,5 @@ template <class Container>
 inline auto rusty_iterators::iterator::RustyIter<Container>::sizeHint() const
     -> std::optional<size_t>
 {
-    return std::make_optional(size);
+    return std::make_optional(end - ptr);
 }

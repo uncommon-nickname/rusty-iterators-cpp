@@ -4,10 +4,13 @@
 
 #include <optional>
 
+namespace
+{
+using rusty_iterators::interface::IterInterface;
+}
+
 namespace rusty_iterators::iterator
 {
-using interface::IterInterface;
-
 template <class T, class Functor>
 concept IsFilterFunctor = requires(Functor f, T t) {
     { f(t) } -> std::same_as<bool>;
@@ -21,8 +24,7 @@ class Filter : public IterInterface<T, Filter<T, Functor, Other>>
     explicit Filter(Other&& it, Functor&& f)
         : it(std::forward<Other>(it)), func(std::forward<Functor>(f)) {};
 
-    auto nextFront() -> std::optional<T>;
-    auto nextBack() -> std::optional<T>;
+    auto next() -> std::optional<T>;
     [[nodiscard]] inline auto sizeHint() const -> std::optional<size_t>;
 
   private:
@@ -33,9 +35,9 @@ class Filter : public IterInterface<T, Filter<T, Functor, Other>>
 
 template <class T, class Functor, class Other>
     requires rusty_iterators::iterator::IsFilterFunctor<T, Functor>
-auto rusty_iterators::iterator::Filter<T, Functor, Other>::nextFront() -> std::optional<T>
+auto rusty_iterators::iterator::Filter<T, Functor, Other>::next() -> std::optional<T>
 {
-    auto nextItem = it.nextFront();
+    auto nextItem = it.next();
 
     while (nextItem.has_value())
     {
@@ -43,24 +45,7 @@ auto rusty_iterators::iterator::Filter<T, Functor, Other>::nextFront() -> std::o
         {
             return nextItem;
         }
-        nextItem = it.nextFront();
-    }
-    return std::nullopt;
-}
-
-template <class T, class Functor, class Other>
-    requires rusty_iterators::iterator::IsFilterFunctor<T, Functor>
-auto rusty_iterators::iterator::Filter<T, Functor, Other>::nextBack() -> std::optional<T>
-{
-    auto nextItem = it.nextBack();
-
-    while (nextItem.has_value())
-    {
-        if (func(nextItem.value()))
-        {
-            return nextItem;
-        }
-        nextItem = it.nextBack();
+        nextItem = it.next();
     }
     return std::nullopt;
 }

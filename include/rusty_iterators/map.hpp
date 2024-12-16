@@ -5,10 +5,13 @@
 #include <optional>
 #include <type_traits>
 
+namespace
+{
+using rusty_iterators::interface::IterInterface;
+}
+
 namespace rusty_iterators::iterator
 {
-using interface::IterInterface;
-
 template <class Tin, class Functor, class Other>
     requires std::invocable<Functor, Tin>
 class Map : public IterInterface<std::invoke_result_t<Functor, Tin>, Map<Tin, Functor, Other>>
@@ -19,8 +22,9 @@ class Map : public IterInterface<std::invoke_result_t<Functor, Tin>, Map<Tin, Fu
     explicit Map(Other&& it, Functor&& f)
         : it(std::forward<Other>(it)), func(std::forward<Functor>(f)) {};
 
-    auto nextFront() -> std::optional<Tout>;
-    auto nextBack() -> std::optional<Tout>;
+    [[nodiscard]] auto count() -> size_t;
+
+    auto next() -> std::optional<Tout>;
     [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;
 
   private:
@@ -31,9 +35,9 @@ class Map : public IterInterface<std::invoke_result_t<Functor, Tin>, Map<Tin, Fu
 
 template <class Tin, class Functor, class Other>
     requires std::invocable<Functor, Tin>
-auto rusty_iterators::iterator::Map<Tin, Functor, Other>::nextFront() -> std::optional<Tout>
+auto rusty_iterators::iterator::Map<Tin, Functor, Other>::next() -> std::optional<Tout>
 {
-    auto item = it.nextFront();
+    auto item = it.next();
 
     [[likely]] if (item.has_value())
     {
@@ -44,15 +48,10 @@ auto rusty_iterators::iterator::Map<Tin, Functor, Other>::nextFront() -> std::op
 
 template <class Tin, class Functor, class Other>
     requires std::invocable<Functor, Tin>
-auto rusty_iterators::iterator::Map<Tin, Functor, Other>::nextBack() -> std::optional<Tout>
+auto rusty_iterators::iterator::Map<Tin, Functor, Other>::count() -> size_t
 {
-    auto item = it.nextBack();
-
-    [[likely]] if (item.has_value())
-    {
-        return std::make_optional(func(item.value()));
-    }
-    return std::nullopt;
+    // We do not have to apply the mapping callable just to count elements.
+    return it.count();
 }
 
 template <class Tin, class Functor, class Other>

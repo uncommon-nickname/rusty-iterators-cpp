@@ -23,7 +23,8 @@ class IterInterface
     [[nodiscard]] auto collect() -> std::vector<T>;
 
     template <class Functor>
-    [[nodiscard]] auto map(Functor&& f) -> iterator::Map<T, Functor, Derived>;
+        requires std::invocable<Functor, T>
+    [[nodiscard]] auto map(Functor&& f) -> Map<T, Functor, Derived>;
 
   private:
     [[nodiscard]] inline auto self() -> Derived& { return static_cast<Derived&>(*this); }
@@ -45,12 +46,12 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::collect() -> std::ve
         collection.push_back(nextItem.value());
         nextItem = self().nextFront();
     }
-
     return std::move(collection);
 }
 
 template <class T, class Derived>
 template <class Functor>
+    requires std::invocable<Functor, T>
 auto rusty_iterators::interface::IterInterface<T, Derived>::map(Functor&& f)
     -> Map<T, Functor, Derived>
 {

@@ -2,23 +2,30 @@
 
 #include "interface.hpp"
 
+#include <functional>
 #include <optional>
+
+namespace
+{
+template <class Container>
+    requires std::ranges::range<Container>
+using Item = std::reference_wrapper<const typename Container::value_type>;
+}
 
 namespace rusty_iterators::iterator
 {
 template <class Container>
     requires std::ranges::range<Container>
-class RustyIter
-    : public interface::IterInterface<typename Container::value_type, RustyIter<Container>>
+class RustyIter : public interface::IterInterface<Item<Container>, RustyIter<Container>>
 {
-    using Item     = typename Container::value_type;
+    using T        = Item<Container>;
     using Iterator = typename Container::iterator;
 
   public:
     explicit RustyIter(Container& it) : head(it.begin()), tail(it.end() - 1), size(it.size()) {}
 
-    auto nextBack() -> std::optional<Item>;
-    auto nextFront() -> std::optional<Item>;
+    auto nextBack() -> std::optional<T>;
+    auto nextFront() -> std::optional<T>;
     [[nodiscard]] inline auto sizeHint() const -> size_t;
 
   private:
@@ -30,32 +37,32 @@ class RustyIter
 
 template <class Container>
     requires std::ranges::range<Container>
-auto rusty_iterators::iterator::RustyIter<Container>::nextBack() -> std::optional<Item>
+auto rusty_iterators::iterator::RustyIter<Container>::nextBack() -> std::optional<T>
 {
     [[unlikely]] if (tail == head - 1)
     {
         return std::nullopt;
     }
 
-    auto item = *tail;
+    auto& item = *tail;
     tail -= 1;
 
-    return std::make_optional(std::forward<Item>(item));
+    return std::make_optional(std::cref(item));
 }
 
 template <class Container>
     requires std::ranges::range<Container>
-auto rusty_iterators::iterator::RustyIter<Container>::nextFront() -> std::optional<Item>
+auto rusty_iterators::iterator::RustyIter<Container>::nextFront() -> std::optional<T>
 {
     [[unlikely]] if (head == tail + 1)
     {
         return std::nullopt;
     }
 
-    auto item = *head;
+    auto& item = *head;
     head += 1;
 
-    return std::make_optional(std::forward<Item>(item));
+    return std::make_optional(std::cref(item));
 }
 
 template <class Container>

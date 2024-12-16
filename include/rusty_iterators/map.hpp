@@ -17,7 +17,7 @@ class Map : public IterInterface<std::invoke_result_t<Functor, Tin>, Map<Tin, Fu
 
   public:
     explicit Map(Other&& it, Functor&& f)
-        : it(std::forward<Other>(it)), f(std::forward<Functor>(f)) {};
+        : it(std::forward<Other>(it)), func(std::forward<Functor>(f)) {};
 
     auto nextFront() -> std::optional<Tout>;
     auto nextBack() -> std::optional<Tout>;
@@ -25,7 +25,7 @@ class Map : public IterInterface<std::invoke_result_t<Functor, Tin>, Map<Tin, Fu
 
   private:
     Other it;
-    Functor f;
+    Functor func;
 };
 } // namespace rusty_iterators::iterator
 
@@ -34,7 +34,12 @@ template <class Tin, class Functor, class Other>
 auto rusty_iterators::iterator::Map<Tin, Functor, Other>::nextFront() -> std::optional<Tout>
 {
     auto item = it.nextFront();
-    return item.has_value() ? std::make_optional(f(item.value())) : std::nullopt;
+
+    [[likely]] if (item.has_value())
+    {
+        return std::make_optional(func(item.value()));
+    }
+    return item;
 }
 
 template <class Tin, class Functor, class Other>
@@ -42,7 +47,12 @@ template <class Tin, class Functor, class Other>
 auto rusty_iterators::iterator::Map<Tin, Functor, Other>::nextBack() -> std::optional<Tout>
 {
     auto item = it.nextBack();
-    return item.has_value() ? std::make_optional(f(item.value())) : std::nullopt;
+
+    [[likely]] if (item.has_value())
+    {
+        return std::make_optional(func(item.value()));
+    }
+    return item;
 }
 
 template <class Tin, class Functor, class Other>

@@ -87,3 +87,13 @@ TEST(TestIteratorCollection, CollectingAlreadyCollected)
     EXPECT_THAT(it.collect(), ElementsAreArray(std::array{1, 2, 3}));
     EXPECT_THAT(it.collect(), ElementsAreArray(std::array<int, 0>{}));
 }
+
+TEST(TestIteratorCollection, CollectedItemsAreReferences)
+{
+    auto vec = std::vector{1, 2, 3};
+    auto it  = RustyIter{vec};
+
+    auto result = it.collect();
+
+    ASSERT_EQ(&result[0].get(), &vec[0]);
+}

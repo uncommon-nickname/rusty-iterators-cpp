@@ -39,3 +39,27 @@ TEST(TestMapIterator, CountReturnsTheAmountOfElements)
 
     ASSERT_EQ(it.count(), 3);
 }
+
+TEST(TestMapIterator, MaxReturnsMappedItems)
+{
+    auto vec = std::vector{1, 2, 3};
+    auto it  = RustyIter{vec}.map([](auto x) { return x * x; });
+
+    ASSERT_EQ(it.max(), 9);
+}
+
+TEST(TestMapIterator, MinReturnsMappedItems)
+{
+    auto vec = std::vector{2, 3, 4};
+    auto it  = RustyIter{vec}.map([](auto x) { return x * x; });
+
+    ASSERT_EQ(it.min(), 4);
+}
+
+TEST(TestMapIterator, SumReturnsMappedItems)
+{
+    auto vec = std::vector{2, 3, 4};
+    auto it  = RustyIter{vec}.map([](auto x) { return x * x; });
+
+    ASSERT_EQ(it.sum(), 29);
+}

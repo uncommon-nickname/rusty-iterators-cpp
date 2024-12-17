@@ -1,23 +1,17 @@
 #pragma once
 
+#include "concepts.hpp"
 #include "interface.fwd.hpp"
 
 #include <optional>
 
-namespace
-{
-using rusty_iterators::interface::IterInterface;
-}
-
 namespace rusty_iterators::iterator
 {
-template <class T, class Functor>
-concept IsFilterFunctor = requires(Functor f, T t) {
-    { f(t) } -> std::same_as<bool>;
-};
+using concepts::FilterFunctor;
+using interface::IterInterface;
 
 template <class T, class Functor, class Other>
-    requires IsFilterFunctor<T, Functor>
+    requires FilterFunctor<T, Functor>
 class Filter : public IterInterface<T, Filter<T, Functor, Other>>
 {
   public:
@@ -34,7 +28,7 @@ class Filter : public IterInterface<T, Filter<T, Functor, Other>>
 } // namespace rusty_iterators::iterator
 
 template <class T, class Functor, class Other>
-    requires rusty_iterators::iterator::IsFilterFunctor<T, Functor>
+    requires rusty_iterators::iterator::FilterFunctor<T, Functor>
 auto rusty_iterators::iterator::Filter<T, Functor, Other>::next() -> std::optional<T>
 {
     auto nextItem = it.next();
@@ -51,7 +45,7 @@ auto rusty_iterators::iterator::Filter<T, Functor, Other>::next() -> std::option
 }
 
 template <class T, class Functor, class Other>
-    requires rusty_iterators::iterator::IsFilterFunctor<T, Functor>
+    requires rusty_iterators::iterator::FilterFunctor<T, Functor>
 auto rusty_iterators::iterator::Filter<T, Functor, Other>::sizeHint() const -> std::optional<size_t>
 {
     // Filter might reduce the size, but without consumption we can't be

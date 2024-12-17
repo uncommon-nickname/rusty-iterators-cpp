@@ -1,20 +1,20 @@
 #pragma once
 
+#include "concepts.hpp"
 #include "filter.hpp"
 #include "map.hpp"
 
 #include <stdexcept>
 #include <vector>
 
-namespace
-{
-using rusty_iterators::iterator::Filter;
-using rusty_iterators::iterator::IsFilterFunctor;
-using rusty_iterators::iterator::Map;
-} // namespace
-
 namespace rusty_iterators::interface
 {
+using concepts::Comparable;
+using concepts::FilterFunctor;
+using concepts::Summable;
+using iterator::Filter;
+using iterator::Map;
+
 template <class T, class Derived>
 class IterInterface
 {
@@ -30,8 +30,20 @@ class IterInterface
     [[nodiscard]] auto collect() -> std::vector<T>;
     [[nodiscard]] auto count() -> size_t;
 
+    template <class R = T>
+        requires Comparable<R>
+    [[nodiscard]] auto max() -> std::optional<R>;
+
+    template <class R = T>
+        requires Comparable<R>
+    [[nodiscard]] auto min() -> std::optional<R>;
+
+    template <class R = T>
+        requires Summable<R>
+    [[nodiscard]] auto sum() -> R;
+
     template <class Functor>
-        requires IsFilterFunctor<T, Functor>
+        requires FilterFunctor<T, Functor>
     [[nodiscard]] auto filter(Functor&& f) -> Filter<T, Functor, Derived>;
 
     template <class Functor>
@@ -64,7 +76,7 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::collect() -> std::ve
 template <class T, class Derived>
 auto rusty_iterators::interface::IterInterface<T, Derived>::count() -> size_t
 {
-    sizeHintChecked(); // Just to validate potential infinite loop.
+    sizeHintChecked();
 
     size_t amount = 0;
     auto nextItem = self().next();
@@ -78,8 +90,88 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::count() -> size_t
 }
 
 template <class T, class Derived>
+template <class R>
+    requires rusty_iterators::concepts::Comparable<R>
+auto rusty_iterators::interface::IterInterface<T, Derived>::max() -> std::optional<R>
+{
+    sizeHintChecked();
+
+    auto maxItem = self().next();
+
+    if (!maxItem.has_value())
+    {
+        return std::nullopt;
+    }
+    while (true)
+    {
+        auto nextItem = self().next();
+
+        if (!nextItem.has_value())
+        {
+            break;
+        }
+        if (nextItem.value() > maxItem.value())
+        {
+            maxItem = nextItem;
+        }
+    }
+    return maxItem;
+}
+
+template <class T, class Derived>
+template <class R>
+    requires rusty_iterators::concepts::Comparable<R>
+auto rusty_iterators::interface::IterInterface<T, Derived>::min() -> std::optional<R>
+{
+    sizeHintChecked();
+
+    auto minItem = self().next();
+
+    if (!minItem.has_value())
+    {
+        return std::nullopt;
+    }
+    while (true)
+    {
+        auto nextItem = self().next();
+
+        if (!nextItem.has_value())
+        {
+            break;
+        }
+        if (nextItem.value() < minItem.value())
+        {
+            minItem = nextItem;
+        }
+    }
+    return minItem;
+}
+
+template <class T, class Derived>
+template <class R>
+    requires rusty_iterators::concepts::Summable<R>
+auto rusty_iterators::interface::IterInterface<T, Derived>::sum() -> R
+{
+    sizeHintChecked();
+
+    auto sum = R{};
+
+    while (true)
+    {
+        auto nextItem = self().next();
+
+        if (!nextItem.has_value())
+        {
+            break;
+        }
+        sum += nextItem.value();
+    }
+    return std::move(sum);
+}
+
+template <class T, class Derived>
 template <class Functor>
-    requires rusty_iterators::iterator::IsFilterFunctor<T, Functor>
+    requires rusty_iterators::iterator::FilterFunctor<T, Functor>
 auto rusty_iterators::interface::IterInterface<T, Derived>::filter(Functor&& f)
     -> Filter<T, Functor, Derived>
 {

@@ -38,3 +38,19 @@ TEST(TestFilterIterator, CountReturnsRealAmountOfElements)
 
     ASSERT_EQ(it.count(), 2);
 }
+
+TEST(TestFilterIterator, MaxDoesNotReceiveFilteredOutItems)
+{
+    auto vec = std::vector{1, 2, 3, 4};
+    auto it  = RustyIter{vec}.filter([](auto x) { return x % 2 != 0; });
+
+    ASSERT_EQ(it.max(), 3);
+}
+
+TEST(TestFilterIterator, MinDoesNotReceiveFilteredOutItems)
+{
+    auto vec = std::vector{1, 2, 3, 4};
+    auto it  = RustyIter{vec}.filter([](auto x) { return x % 2 == 0; });
+
+    ASSERT_EQ(it.min(), 2);
+}

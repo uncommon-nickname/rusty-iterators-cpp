@@ -104,3 +104,35 @@ TEST(TestIterator, CountReturnsRealAmountOfElements)
 
     ASSERT_EQ(it.count(), 4);
 }
+
+TEST(TestIterator, MaxReturnsTheBiggestNumber)
+{
+    auto vec = std::vector{1, 2, 3, 4};
+    auto it  = RustyIter{vec};
+
+    ASSERT_EQ(it.max(), 4);
+}
+
+TEST(TestIterator, MaxOnEmptyVec)
+{
+    auto vec = std::vector<int>{};
+    auto it  = RustyIter{vec};
+
+    ASSERT_EQ(it.max(), std::nullopt);
+}
+
+TEST(TestIterator, MinReturnsTheSmallestNumber)
+{
+    auto vec = std::vector{1, 2, 3, 4};
+    auto it  = RustyIter{vec};
+
+    ASSERT_EQ(it.min(), 1);
+}
+
+TEST(TestIterator, MinOnEmptyVec)
+{
+    auto vec = std::vector<int>{};
+    auto it  = RustyIter{vec};
+
+    ASSERT_EQ(it.min(), std::nullopt);
+}

@@ -163,3 +163,13 @@ TEST(TestIterator, SumAllOfTheElements)
 
     ASSERT_EQ(it.sum(), 10);
 }
+
+TEST(TestIterator, ForEachElementIncrementRef)
+{
+    auto vec = std::vector{1, 2, 3, 4};
+    auto i   = 0;
+
+    RustyIter{vec}.forEach([&i](auto x) { i += 1; });
+
+    ASSERT_EQ(i, 4);
+}

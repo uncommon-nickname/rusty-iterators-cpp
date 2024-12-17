@@ -12,6 +12,7 @@ namespace rusty_iterators::interface
 using concepts::Comparable;
 using concepts::FilterFunctor;
 using concepts::FoldFunctor;
+using concepts::ForEachFunctor;
 using concepts::Summable;
 
 using iterator::Filter;
@@ -57,6 +58,10 @@ class IterInterface
     [[nodiscard]] auto filter(Functor&& f) -> Filter<T, Functor, Derived>;
 
     template <class Functor>
+        requires ForEachFunctor<T, Functor>
+    auto forEach(Functor&& f) -> void;
+
+    template <class Functor>
         requires std::invocable<Functor, T>
     [[nodiscard]] auto map(Functor&& f) -> Map<T, Functor, Derived>;
 
@@ -73,30 +78,16 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::collect() -> std::ve
     auto size       = sizeHintChecked();
 
     collection.reserve(size);
-    auto nextItem = self().next();
 
-    [[likely]] while (nextItem.has_value())
-    {
-        collection.push_back(std::move(nextItem.value()));
-        nextItem = self().next();
-    }
+    forEach([&collection](auto&& x) { collection.push_back(std::move(x)); });
+
     return std::move(collection);
 }
 
 template <class T, class Derived>
 auto rusty_iterators::interface::IterInterface<T, Derived>::count() -> size_t
 {
-    sizeHintChecked();
-
-    size_t amount = 0;
-    auto nextItem = self().next();
-
-    [[likely]] while (nextItem.has_value())
-    {
-        amount += 1;
-        nextItem = self().next();
-    }
-    return amount;
+    return fold(0, [](auto count, auto _) { return count + 1; });
 }
 
 template <class T, class Derived>
@@ -106,21 +97,34 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::fold(B&& init, Funct
 {
     sizeHintChecked();
 
-    auto func  = std::forward<Functor>(f);
-    auto accum = std::forward<B>(init);
+    auto func     = std::forward<Functor>(f);
+    auto accum    = std::forward<B>(init);
+    auto nextItem = self().next();
 
-    while (true)
+    [[likely]] while (nextItem.has_value())
     {
-        auto nextItem = self().next();
-
-        if (!nextItem.has_value())
-        {
-            break;
-        }
-
-        accum = func(std::move(accum), std::move(nextItem.value()));
+        accum    = func(std::move(accum), std::move(nextItem.value()));
+        nextItem = self().next();
     }
+
     return std::move(accum);
+}
+
+template <class T, class Derived>
+template <class Functor>
+    requires rusty_iterators::concepts::ForEachFunctor<T, Functor>
+auto rusty_iterators::interface::IterInterface<T, Derived>::forEach(Functor&& f) -> void
+{
+    sizeHintChecked();
+
+    auto func     = std::forward<Functor>(f);
+    auto nextItem = self().next();
+
+    while (nextItem.has_value())
+    {
+        func(std::move(nextItem.value()));
+        nextItem = self().next();
+    }
 }
 
 template <class T, class Derived>
@@ -146,7 +150,7 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::reduce(Functor&& f) 
 {
     auto first = self().next();
 
-    if (!first.has_value())
+    [[unlikely]] if (!first.has_value())
     {
         return std::nullopt;
     }
@@ -185,10 +189,10 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::sizeHintChecked() ->
 {
     auto size = self().sizeHint();
 
-    if (!size.has_value())
+    [[likely]] if (size.has_value())
     {
-        throw std::length_error{
-            "Trying to collect an infinite iterator will result in an infinite loop."};
+        return size.value();
     }
-    return size.value();
+    throw std::length_error{
+        "Trying to collect an infinite iterator will result in an infinite loop."};
 }

@@ -11,7 +11,9 @@ namespace rusty_iterators::interface
 {
 using concepts::Comparable;
 using concepts::FilterFunctor;
+using concepts::FoldFunctor;
 using concepts::Summable;
+
 using iterator::Filter;
 using iterator::Map;
 
@@ -30,6 +32,10 @@ class IterInterface
     [[nodiscard]] auto collect() -> std::vector<T>;
     [[nodiscard]] auto count() -> size_t;
 
+    template <class B, class Functor>
+        requires FoldFunctor<B, T, Functor>
+    [[nodiscard]] auto fold(B&& init, Functor&& f) -> B;
+
     template <class R = T>
         requires Comparable<R>
     [[nodiscard]] auto max() -> std::optional<R>;
@@ -37,6 +43,10 @@ class IterInterface
     template <class R = T>
         requires Comparable<R>
     [[nodiscard]] auto min() -> std::optional<R>;
+
+    template <class Functor>
+        requires FoldFunctor<T, T, Functor>
+    [[nodiscard]] auto reduce(Functor&& f) -> std::optional<T>;
 
     template <class R = T>
         requires Summable<R>
@@ -90,18 +100,15 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::count() -> size_t
 }
 
 template <class T, class Derived>
-template <class R>
-    requires rusty_iterators::concepts::Comparable<R>
-auto rusty_iterators::interface::IterInterface<T, Derived>::max() -> std::optional<R>
+template <class B, class Functor>
+    requires rusty_iterators::concepts::FoldFunctor<B, T, Functor>
+auto rusty_iterators::interface::IterInterface<T, Derived>::fold(B&& init, Functor&& f) -> B
 {
     sizeHintChecked();
 
-    auto maxItem = self().next();
+    auto func  = std::forward<Functor>(f);
+    auto accum = std::forward<B>(init);
 
-    if (!maxItem.has_value())
-    {
-        return std::nullopt;
-    }
     while (true)
     {
         auto nextItem = self().next();
@@ -110,12 +117,18 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::max() -> std::option
         {
             break;
         }
-        if (nextItem.value() > maxItem.value())
-        {
-            maxItem = nextItem;
-        }
+
+        accum = func(std::move(accum), std::move(nextItem.value()));
     }
-    return maxItem;
+    return std::move(accum);
+}
+
+template <class T, class Derived>
+template <class R>
+    requires rusty_iterators::concepts::Comparable<R>
+auto rusty_iterators::interface::IterInterface<T, Derived>::max() -> std::optional<R>
+{
+    return reduce([](auto x, auto y) { return std::max(x, y); });
 }
 
 template <class T, class Derived>
@@ -123,28 +136,22 @@ template <class R>
     requires rusty_iterators::concepts::Comparable<R>
 auto rusty_iterators::interface::IterInterface<T, Derived>::min() -> std::optional<R>
 {
-    sizeHintChecked();
+    return reduce([](auto x, auto y) { return std::min(x, y); });
+}
 
-    auto minItem = self().next();
+template <class T, class Derived>
+template <class Functor>
+    requires rusty_iterators::concepts::FoldFunctor<T, T, Functor>
+auto rusty_iterators::interface::IterInterface<T, Derived>::reduce(Functor&& f) -> std::optional<T>
+{
+    auto first = self().next();
 
-    if (!minItem.has_value())
+    if (!first.has_value())
     {
         return std::nullopt;
     }
-    while (true)
-    {
-        auto nextItem = self().next();
 
-        if (!nextItem.has_value())
-        {
-            break;
-        }
-        if (nextItem.value() < minItem.value())
-        {
-            minItem = nextItem;
-        }
-    }
-    return minItem;
+    return std::make_optional(fold(std::move(first.value()), std::forward<Functor>(f)));
 }
 
 template <class T, class Derived>
@@ -152,21 +159,7 @@ template <class R>
     requires rusty_iterators::concepts::Summable<R>
 auto rusty_iterators::interface::IterInterface<T, Derived>::sum() -> R
 {
-    sizeHintChecked();
-
-    auto sum = R{};
-
-    while (true)
-    {
-        auto nextItem = self().next();
-
-        if (!nextItem.has_value())
-        {
-            break;
-        }
-        sum += nextItem.value();
-    }
-    return std::move(sum);
+    return fold(R{}, [](auto acc, auto x) { return acc + x; });
 }
 
 template <class T, class Derived>

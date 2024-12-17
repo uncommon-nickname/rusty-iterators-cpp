@@ -136,3 +136,30 @@ TEST(TestIterator, MinOnEmptyVec)
 
     ASSERT_EQ(it.min(), std::nullopt);
 }
+
+TEST(TestIterator, FoldUsedToSum)
+{
+    auto vec    = std::vector{1, 2, 3, 4};
+    auto result = RustyIter{vec}.fold(0, [](auto acc, auto x) { return acc + x; });
+
+    ASSERT_EQ(result, 10);
+}
+
+TEST(TestIterator, FoldUsedToConcatenate)
+{
+    auto vec  = std::vector{1, 2, 3, 4};
+    auto zero = std::string{"0"};
+
+    auto result = RustyIter{vec}.fold(
+        std::move(zero), [](auto acc, auto x) { return std::format("({} + {})", acc, x.get()); });
+
+    ASSERT_EQ(result, "((((0 + 1) + 2) + 3) + 4)");
+}
+
+TEST(TestIterator, SumAllOfTheElements)
+{
+    auto vec = std::vector{1, 2, 3, 4};
+    auto it  = RustyIter{vec};
+
+    ASSERT_EQ(it.sum(), 10);
+}

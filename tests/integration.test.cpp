@@ -34,3 +34,15 @@ TEST(TestIteratorIntegration, TestMultipleMaps)
 
     EXPECT_THAT(it.collect(), ElementsAreArray(std::array{"Hello 4", "Hello 7", "Hello 12"}));
 }
+
+TEST(TestIteratorIntegration, TestFilterMapCycled)
+{
+    auto vec = std::vector{1, 2, 3};
+    auto it  = RustyIter{vec}.filter([](auto x) { return x % 2 != 0; }).cycle().map([](auto x) {
+        return x + 3;
+    });
+
+    ASSERT_EQ(it.next(), 4);
+    ASSERT_EQ(it.next(), 6);
+    ASSERT_EQ(it.next(), 4);
+}

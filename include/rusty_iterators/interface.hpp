@@ -1,6 +1,7 @@
 #pragma once
 
 #include "concepts.hpp"
+#include "cycle.hpp"
 #include "filter.hpp"
 #include "map.hpp"
 
@@ -15,6 +16,7 @@ using concepts::FoldFunctor;
 using concepts::ForEachFunctor;
 using concepts::Summable;
 
+using iterator::Cycle;
 using iterator::Filter;
 using iterator::Map;
 
@@ -32,6 +34,8 @@ class IterInterface
 
     [[nodiscard]] auto collect() -> std::vector<T>;
     [[nodiscard]] auto count() -> size_t;
+
+    [[nodiscard]] auto cycle() -> Cycle<T, Derived>;
 
     template <class B, class Functor>
         requires FoldFunctor<B, T, Functor>
@@ -88,6 +92,12 @@ template <class T, class Derived>
 auto rusty_iterators::interface::IterInterface<T, Derived>::count() -> size_t
 {
     return fold(0, [](auto count, auto _) { return count + 1; });
+}
+
+template <class T, class Derived>
+auto rusty_iterators::interface::IterInterface<T, Derived>::cycle() -> Cycle<T, Derived>
+{
+    return Cycle<T, Derived>{std::forward<Derived>(self())};
 }
 
 template <class T, class Derived>

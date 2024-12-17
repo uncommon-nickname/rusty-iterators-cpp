@@ -5,13 +5,10 @@
 #include <optional>
 #include <type_traits>
 
-namespace
-{
-using rusty_iterators::interface::IterInterface;
-}
-
 namespace rusty_iterators::iterator
 {
+using interface::IterInterface;
+
 template <class Tin, class Functor, class Other>
     requires std::invocable<Functor, Tin>
 class Map : public IterInterface<std::invoke_result_t<Functor, Tin>, Map<Tin, Functor, Other>>

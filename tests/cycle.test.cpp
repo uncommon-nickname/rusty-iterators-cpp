@@ -120,3 +120,17 @@ TEST(TestCycleIterator, ReduceThrowsException)
 
     EXPECT_THROW(auto _ = it.reduce([](auto x, auto y) { return x; }), std::length_error);
 }
+
+TEST(TestCycleIterator, CycleSavesTheCurrentState)
+{
+    auto vec = std::vector{1, 2, 3};
+    auto it  = RustyIter{vec};
+
+    it.next();
+
+    auto c = it.cycle();
+
+    ASSERT_EQ(c.next(), 2);
+    ASSERT_EQ(c.next(), 3);
+    ASSERT_EQ(c.next(), 2);
+}

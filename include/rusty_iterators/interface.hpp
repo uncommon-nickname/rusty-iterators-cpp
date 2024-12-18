@@ -3,6 +3,7 @@
 #include "concepts.hpp"
 #include "cycle.hpp"
 #include "filter.hpp"
+#include "inspect.hpp"
 #include "map.hpp"
 #include "take.hpp"
 
@@ -17,10 +18,12 @@ using concepts::Comparable;
 using concepts::FilterFunctor;
 using concepts::FoldFunctor;
 using concepts::ForEachFunctor;
+using concepts::InspectFunctor;
 using concepts::Summable;
 
 using iterator::Cycle;
 using iterator::Filter;
+using iterator::Inspect;
 using iterator::Map;
 using iterator::Take;
 
@@ -59,6 +62,10 @@ class IterInterface
     template <class Functor>
         requires ForEachFunctor<T, Functor>
     auto forEach(Functor&& f) -> void;
+
+    template <class Functor>
+        requires InspectFunctor<T, Functor>
+    auto inspect(Functor&& f) -> Inspect<T, Functor, Derived>;
 
     template <class Functor>
         requires std::invocable<Functor, T>
@@ -201,6 +208,15 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::forEach(Functor&& f)
         func(std::move(nextItem.value()));
         nextItem = self().next();
     }
+}
+
+template <class T, class Derived>
+template <class Functor>
+    requires rusty_iterators::concepts::InspectFunctor<T, Functor>
+auto rusty_iterators::interface::IterInterface<T, Derived>::inspect(Functor&& f)
+    -> Inspect<T, Functor, Derived>
+{
+    return Inspect<T, Functor, Derived>{std::forward<Derived>(self()), std::forward<Functor>(f)};
 }
 
 template <class T, class Derived>

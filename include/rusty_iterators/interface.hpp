@@ -4,6 +4,7 @@
 #include "cycle.hpp"
 #include "filter.hpp"
 #include "map.hpp"
+#include "take.hpp"
 
 #include <stdexcept>
 #include <vector>
@@ -19,6 +20,7 @@ using concepts::Summable;
 using iterator::Cycle;
 using iterator::Filter;
 using iterator::Map;
+using iterator::Take;
 
 template <class T, class Derived>
 class IterInterface
@@ -34,12 +36,23 @@ class IterInterface
 
     [[nodiscard]] auto collect() -> std::vector<T>;
     [[nodiscard]] auto count() -> size_t;
-
     [[nodiscard]] auto cycle() -> Cycle<T, Derived>;
+
+    template <class Functor>
+        requires FilterFunctor<T, Functor>
+    [[nodiscard]] auto filter(Functor&& f) -> Filter<T, Functor, Derived>;
 
     template <class B, class Functor>
         requires FoldFunctor<B, T, Functor>
     [[nodiscard]] auto fold(B&& init, Functor&& f) -> B;
+
+    template <class Functor>
+        requires ForEachFunctor<T, Functor>
+    auto forEach(Functor&& f) -> void;
+
+    template <class Functor>
+        requires std::invocable<Functor, T>
+    [[nodiscard]] auto map(Functor&& f) -> Map<T, Functor, Derived>;
 
     template <class R = T>
         requires Comparable<R>
@@ -57,17 +70,7 @@ class IterInterface
         requires Summable<R>
     [[nodiscard]] auto sum() -> R;
 
-    template <class Functor>
-        requires FilterFunctor<T, Functor>
-    [[nodiscard]] auto filter(Functor&& f) -> Filter<T, Functor, Derived>;
-
-    template <class Functor>
-        requires ForEachFunctor<T, Functor>
-    auto forEach(Functor&& f) -> void;
-
-    template <class Functor>
-        requires std::invocable<Functor, T>
-    [[nodiscard]] auto map(Functor&& f) -> Map<T, Functor, Derived>;
+    [[nodiscard]] auto take(size_t amount) -> Take<T, Derived>;
 
   private:
     [[nodiscard]] inline auto self() -> Derived& { return static_cast<Derived&>(*this); }
@@ -98,6 +101,15 @@ template <class T, class Derived>
 auto rusty_iterators::interface::IterInterface<T, Derived>::cycle() -> Cycle<T, Derived>
 {
     return Cycle<T, Derived>{std::forward<Derived>(self())};
+}
+
+template <class T, class Derived>
+template <class Functor>
+    requires rusty_iterators::iterator::FilterFunctor<T, Functor>
+auto rusty_iterators::interface::IterInterface<T, Derived>::filter(Functor&& f)
+    -> Filter<T, Functor, Derived>
+{
+    return Filter<T, Functor, Derived>{std::forward<Derived>(self()), std::forward<Functor>(f)};
 }
 
 template <class T, class Derived>
@@ -135,6 +147,15 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::forEach(Functor&& f)
         func(std::move(nextItem.value()));
         nextItem = self().next();
     }
+}
+
+template <class T, class Derived>
+template <class Functor>
+    requires std::invocable<Functor, T>
+auto rusty_iterators::interface::IterInterface<T, Derived>::map(Functor&& f)
+    -> Map<T, Functor, Derived>
+{
+    return Map<T, Functor, Derived>{std::forward<Derived>(self()), std::forward<Functor>(f)};
 }
 
 template <class T, class Derived>
@@ -177,21 +198,9 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::sum() -> R
 }
 
 template <class T, class Derived>
-template <class Functor>
-    requires rusty_iterators::iterator::FilterFunctor<T, Functor>
-auto rusty_iterators::interface::IterInterface<T, Derived>::filter(Functor&& f)
-    -> Filter<T, Functor, Derived>
+auto rusty_iterators::interface::IterInterface<T, Derived>::take(size_t amount) -> Take<T, Derived>
 {
-    return Filter<T, Functor, Derived>{std::forward<Derived>(self()), std::forward<Functor>(f)};
-}
-
-template <class T, class Derived>
-template <class Functor>
-    requires std::invocable<Functor, T>
-auto rusty_iterators::interface::IterInterface<T, Derived>::map(Functor&& f)
-    -> Map<T, Functor, Derived>
-{
-    return Map<T, Functor, Derived>{std::forward<Derived>(self()), std::forward<Functor>(f)};
+    return Take<T, Derived>{std::forward<Derived>(self()), amount};
 }
 
 template <class T, class Derived>

@@ -46,3 +46,11 @@ TEST(TestIteratorIntegration, TestFilterMapCycled)
     ASSERT_EQ(it.next(), 6);
     ASSERT_EQ(it.next(), 4);
 }
+
+TEST(TestIteratorIntegration, TestTakeOnCycle)
+{
+    auto vec = std::vector{1, 2};
+    auto it  = RustyIter{vec}.cycle().take(4);
+
+    EXPECT_THAT(it.collect(), ElementsAreArray(std::array{1, 2, 1, 2}));
+}

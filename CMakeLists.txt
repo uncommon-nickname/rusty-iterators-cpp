@@ -8,6 +8,7 @@ project(
 )
 
 option(COMPILE_TESTS "Boolean indicating if tests should be compiled")
+option(COMPILE_BENCHMARKS "Boolean indicating if benchmarks should be compiled")
 
 set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -30,3 +31,10 @@ if(${COMPILE_TESTS})
     add_subdirectory(tests)
 endif()
 
+if(${COMPILE_BENCHMARKS})
+    # We don't really want to run benchmark tests, its faster.
+    set(BENCHMARK_ENABLE_GTEST_TESTS OFF)
+    # We want to benchmark in the release mode.
+    set(CMAKE_BUILD_TYPE "Release")
+    add_subdirectory(benchmarks)
+endif()

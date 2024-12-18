@@ -74,6 +74,27 @@ auto data = std::vector{1, 2, 3, 4};
 auto result = RustyIter{data}.filter([](auto x) { return x % 2 != 0; }).map([](auto x) { return x * x; }).collect();
 ```
 
+## Benchmarks
+
+We provide a small set of benchmarks located in the `benchmarks/` directory. You can build them using provided build script.
+
+```bash
+./build.sh --clang --compile-benchmarks
+```
+
+All of the benchmarks measure the performance in release mode and run similar scenario using C++20 `std::ranges` to compare how fast, or how slow we are.
+
+### Current measurements
+
+All of the measurements were taken on MacBook M3 Pro 18GB.
+
+#### Apply filter and map on 10 000 000 ints
+
+|          **Benchmark**         | **Time [ns]** | **CPU [ns]** |
+|:------------------------------:|:-------------:|:------------:|
+|       benchmarkFilterMap       |    5565001    |    5564975   |
+| benchmarkRangesFilterTransform |    5837398    |    5837397   |
+
 ## Authors
 
 - [Wiktor Nowak](@uncommon-nickname)

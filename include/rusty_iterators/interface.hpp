@@ -11,6 +11,8 @@
 
 namespace rusty_iterators::interface
 {
+using concepts::AllFunctor;
+using concepts::AnyFunctor;
 using concepts::Comparable;
 using concepts::FilterFunctor;
 using concepts::FoldFunctor;
@@ -33,6 +35,14 @@ class IterInterface
     IterInterface& operator=(IterInterface const&) = default;
     IterInterface(IterInterface&&)                 = default;
     IterInterface& operator=(IterInterface&&)      = default;
+
+    template <class Functor>
+        requires AnyFunctor<T, Functor>
+    [[nodiscard]] auto any(Functor&& f) -> bool;
+
+    template <class Functor>
+        requires AllFunctor<T, Functor>
+    [[nodiscard]] auto all(Functor&& f) -> bool;
 
     [[nodiscard]] auto collect() -> std::vector<T>;
     [[nodiscard]] auto count() -> size_t;
@@ -77,6 +87,50 @@ class IterInterface
     auto sizeHintChecked() -> size_t;
 };
 } // namespace rusty_iterators::interface
+
+template <class T, class Derived>
+template <class Functor>
+    requires rusty_iterators::concepts::AnyFunctor<T, Functor>
+auto rusty_iterators::interface::IterInterface<T, Derived>::any(Functor&& f) -> bool
+{
+    // TODO: move this to use `tryFold` when implemented.
+    sizeHintChecked();
+
+    auto func     = std::forward<Functor>(f);
+    auto nextItem = self().next();
+
+    [[likely]] while (nextItem.has_value())
+    {
+        if (func(nextItem.value()))
+        {
+            return true;
+        }
+        nextItem = self().next();
+    }
+    return false;
+}
+
+template <class T, class Derived>
+template <class Functor>
+    requires rusty_iterators::concepts::AllFunctor<T, Functor>
+auto rusty_iterators::interface::IterInterface<T, Derived>::all(Functor&& f) -> bool
+{
+    // TODO: move this to use `tryFold` when implemented.
+    sizeHintChecked();
+
+    auto func     = std::forward<Functor>(f);
+    auto nextItem = self().next();
+
+    [[likely]] while (nextItem.has_value())
+    {
+        if (!func(nextItem.value()))
+        {
+            return false;
+        }
+        nextItem = self().next();
+    }
+    return true;
+}
 
 template <class T, class Derived>
 auto rusty_iterators::interface::IterInterface<T, Derived>::collect() -> std::vector<T>

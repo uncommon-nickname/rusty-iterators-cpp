@@ -5,9 +5,15 @@
 namespace rusty_iterators::concepts
 {
 template <class T, class Functor>
-concept FilterFunctor = requires(Functor f, T t) {
+concept AllFunctor = requires(Functor f, T t) {
     { f(t) } -> std::same_as<bool>;
 };
+
+template <class T, class Functor>
+concept AnyFunctor = AllFunctor<T, Functor>;
+
+template <class T, class Functor>
+concept FilterFunctor = AllFunctor<T, Functor>;
 
 template <class B, class T, class Functor>
 concept FoldFunctor = requires(Functor f, B first, T second) {

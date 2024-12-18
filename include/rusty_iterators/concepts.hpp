@@ -25,6 +25,9 @@ concept ForEachFunctor = requires(Functor f, T t) {
     { f(t) } -> std::same_as<void>;
 };
 
+template <class T, class Functor>
+concept InspectFunctor = ForEachFunctor<T, Functor>;
+
 template <class T>
 concept Summable = requires(T first, T second) {
     { first + second } -> std::same_as<T>;

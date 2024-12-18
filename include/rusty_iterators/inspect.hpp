@@ -12,7 +12,7 @@ using interface::IterInterface;
 
 template <class T, class Functor, class Other>
     requires InspectFunctor<T, Functor>
-class Inspect : public IterInterface<T, Inspect<T, Other, Functor>>
+class Inspect : public IterInterface<T, Inspect<T, Functor, Other>>
 {
   public:
     Inspect(Other&& it, Functor&& f)

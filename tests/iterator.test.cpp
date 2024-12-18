@@ -173,3 +173,35 @@ TEST(TestIterator, ForEachElementIncrementRef)
 
     ASSERT_EQ(i, 4);
 }
+
+TEST(TestIterator, AnyReturnsTrueIfOneFits)
+{
+    auto vec    = std::vector{1, 2, 3};
+    auto result = RustyIter{vec}.any([](auto x) { return x == 2; });
+
+    ASSERT_TRUE(result);
+}
+
+TEST(TestIterator, AnyReturnsFalseIfNothingFits)
+{
+    auto vec    = std::vector{1, 2, 3};
+    auto result = RustyIter{vec}.any([](auto x) { return x == 4; });
+
+    ASSERT_FALSE(result);
+}
+
+TEST(TestIterator, AllReturnsTrueIfAllFit)
+{
+    auto vec    = std::vector{1, 2, 3};
+    auto result = RustyIter{vec}.all([](auto x) { return x > 0; });
+
+    ASSERT_TRUE(result);
+}
+
+TEST(TestIterator, AllReturnsFalseIfOneDoesntFit)
+{
+    auto vec    = std::vector{1, 2, 3};
+    auto result = RustyIter{vec}.all([](auto x) { return x < 3; });
+
+    ASSERT_FALSE(result);
+}

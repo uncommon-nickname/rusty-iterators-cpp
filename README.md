@@ -72,7 +72,7 @@ auto result = RustyIter{data}.map([](auto x) { return x.get().size(); }).min();
 ```c++
 auto data = std::vector{1, 2, 3, 4};
 auto result = RustyIter{data}
-                .filter([](auto x) { return x % 2 == 0; })
+                .filter([](auto x) { return x % 2 != 0; })
                 .map([](auto x) { return x * x; })
                 .collect();
 ```

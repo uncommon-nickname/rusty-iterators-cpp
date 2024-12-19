@@ -18,6 +18,13 @@ class Take : public IterInterface<T, Take<T, Other>>
     auto next() -> std::optional<T>;
     [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;
 
+    friend auto operator<<(auto& os, Take<T, Other> const& m) -> std::ostream&
+    {
+        // Take always has a defined size, it will never be infinite.
+        return os << "Take{ size=" << m.sizeHint().value() << ", taken=" << m.taken
+                  << ", it=" << m.it << " }";
+    }
+
   private:
     Other it;
     size_t size;

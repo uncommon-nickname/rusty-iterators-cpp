@@ -2,7 +2,9 @@
 
 #include "interface.fwd.hpp"
 
+#include <iostream>
 #include <optional>
+#include <string>
 #include <type_traits>
 
 namespace rusty_iterators::iterator
@@ -23,6 +25,14 @@ class Map : public IterInterface<std::invoke_result_t<Functor, Tin>, Map<Tin, Fu
 
     auto next() -> std::optional<Tout>;
     [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;
+
+    friend auto operator<<(auto& os, Map<Tin, Functor, Other> const& m) -> std::ostream&
+    {
+        auto size    = m.sizeHint();
+        auto sizeStr = size.has_value() ? std::to_string(size.value()) : "inf";
+
+        return os << "Map{ size=" << sizeStr << ", it=" << m.it << " }";
+    }
 
   private:
     Other it;

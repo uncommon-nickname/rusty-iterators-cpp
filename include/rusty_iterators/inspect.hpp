@@ -4,6 +4,7 @@
 #include "interface.fwd.hpp"
 
 #include <optional>
+#include <string>
 
 namespace rusty_iterators::iterator
 {
@@ -20,6 +21,14 @@ class Inspect : public IterInterface<T, Inspect<T, Functor, Other>>
 
     auto next() -> std::optional<T>;
     [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;
+
+    friend auto operator<<(auto& os, Inspect<T, Functor, Other> const& m) -> std::ostream&
+    {
+        auto size    = m.sizeHint();
+        auto sizeStr = size.has_value() ? std::to_string(size.value()) : "inf";
+
+        return os << "Inspect{ size=" << sizeStr << ", it=" << m.it << " }";
+    }
 
   private:
     Other it;

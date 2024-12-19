@@ -16,7 +16,7 @@ auto initializeIncrementalVector() -> std::vector<int>
     return std::move(data);
 }
 
-auto benchmarkFilterMap(benchmark::State& state) -> void
+auto benchmarkRustyIterFilterMap(benchmark::State& state) -> void
 {
     auto data = initializeIncrementalVector();
 
@@ -41,5 +41,5 @@ auto benchmarkRangesFilterTransform(benchmark::State& state) -> void
     }
 }
 
-BENCHMARK(benchmarkFilterMap);
+BENCHMARK(benchmarkRustyIterFilterMap);
 BENCHMARK(benchmarkRangesFilterTransform);

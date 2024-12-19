@@ -2,7 +2,6 @@
 
 #include "interface.fwd.hpp"
 
-#include <iostream>
 #include <optional>
 #include <string>
 #include <type_traits>

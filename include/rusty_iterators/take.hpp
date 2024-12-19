@@ -3,6 +3,7 @@
 #include "interface.fwd.hpp"
 
 #include <algorithm>
+#include <iostream>
 #include <optional>
 
 namespace rusty_iterators::iterator

@@ -3,6 +3,7 @@
 #include "interface.fwd.hpp"
 
 #include <optional>
+#include <string>
 
 namespace rusty_iterators::iterator
 {
@@ -16,6 +17,15 @@ class Cycle : public IterInterface<T, Cycle<T, Other>>
 
     auto next() -> std::optional<T>;
     [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;
+
+    friend auto operator<<(auto& os, Cycle<T, Other> const& m) -> std::ostream&
+    {
+        auto size    = m.sizeHint();
+        auto sizeStr = size.has_value() ? std::to_string(size.value()) : "inf";
+
+        return os << "Cycle{ size=" << sizeStr << ", it=" << m.it << ", orig=" << m.original
+                  << " }";
+    }
 
   private:
     Other it;

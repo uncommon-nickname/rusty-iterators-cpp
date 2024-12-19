@@ -36,6 +36,12 @@ class RustyIter : public interface::IterInterface<Item<Container>, RustyIter<Con
         requires Summable<R>
     [[nodiscard]] auto sum() -> R;
 
+    friend auto operator<<(auto& os, RustyIter<Container> const& m) -> std::ostream&
+    {
+        // Baseline iterator will never be infinite. We can skip checks.
+        return os << "RustyIter{ size=" << m.sizeHint().value() << " }";
+    }
+
   private:
     Iterator ptr;
     Iterator end;

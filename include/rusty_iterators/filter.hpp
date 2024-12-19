@@ -20,7 +20,7 @@ class Filter : public IterInterface<T, Filter<T, Functor, Other>>
         : it(std::forward<Other>(it)), func(std::forward<Functor>(f)) {};
 
     auto next() -> std::optional<T>;
-    [[nodiscard]] inline auto sizeHint() const -> std::optional<size_t>;
+    [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;
 
     friend auto operator<<(auto& os, Filter<T, Functor, Other> const& m) -> std::ostream&
     {

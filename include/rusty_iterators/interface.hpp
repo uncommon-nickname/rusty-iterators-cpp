@@ -5,6 +5,7 @@
 #include "filter.hpp"
 #include "inspect.hpp"
 #include "map.hpp"
+#include "moving_window.hpp"
 #include "take.hpp"
 
 #include <stdexcept>
@@ -25,6 +26,7 @@ using iterator::Cycle;
 using iterator::Filter;
 using iterator::Inspect;
 using iterator::Map;
+using iterator::MovingWindow;
 using iterator::Take;
 
 template <class T, class Derived>
@@ -78,6 +80,8 @@ class IterInterface
     template <class R = T>
         requires Comparable<R>
     [[nodiscard]] auto min() -> std::optional<R>;
+
+    [[nodiscard]] auto movingWindow(size_t size) -> MovingWindow<T, Derived>;
 
     template <class Functor>
         requires FoldFunctor<T, T, Functor>
@@ -189,7 +193,6 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::fold(B&& init, Funct
         accum    = func(std::move(accum), std::move(nextItem.value()));
         nextItem = self().next();
     }
-
     return std::move(accum);
 }
 
@@ -245,6 +248,13 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::min() -> std::option
 }
 
 template <class T, class Derived>
+auto rusty_iterators::interface::IterInterface<T, Derived>::movingWindow(size_t size)
+    -> MovingWindow<T, Derived>
+{
+    return MovingWindow<T, Derived>{std::forward<Derived>(self()), size};
+}
+
+template <class T, class Derived>
 template <class Functor>
     requires rusty_iterators::concepts::FoldFunctor<T, T, Functor>
 auto rusty_iterators::interface::IterInterface<T, Derived>::reduce(Functor&& f) -> std::optional<T>
@@ -255,7 +265,6 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::reduce(Functor&& f) 
     {
         return std::nullopt;
     }
-
     return std::make_optional(fold(std::move(first.value()), std::forward<Functor>(f)));
 }
 

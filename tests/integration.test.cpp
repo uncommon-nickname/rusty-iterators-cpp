@@ -54,3 +54,27 @@ TEST(TestIteratorIntegration, TestTakeOnCycle)
 
     EXPECT_THAT(it.collect(), ElementsAreArray(std::array{1, 2, 1, 2}));
 }
+
+TEST(TestIteratorIntegration, TestCheckIfIteratorIncremental)
+{
+    auto goodVec = std::vector{1, 2, 2, 4};
+    auto r1      = RustyIter{goodVec}.movingWindow(2).all([](auto x) { return x[0] <= x[1]; });
+
+    ASSERT_TRUE(r1);
+
+    auto badVec = std::vector{1, 2, 4, 2};
+    auto r2     = RustyIter{badVec}.movingWindow(2).all([](auto x) { return x[0] <= x[1]; });
+
+    ASSERT_FALSE(r2);
+}
+
+TEST(TestIteratorIntegration, TestWindowsOverCycle)
+{
+    auto vec = std::vector{1, 2, 3};
+    auto it  = RustyIter{vec}.cycle().movingWindow(2);
+
+    EXPECT_THAT(it.next().value(), ElementsAreArray(std::array{1, 2}));
+    EXPECT_THAT(it.next().value(), ElementsAreArray(std::array{2, 3}));
+    EXPECT_THAT(it.next().value(), ElementsAreArray(std::array{3, 1}));
+    EXPECT_THAT(it.next().value(), ElementsAreArray(std::array{1, 2}));
+}

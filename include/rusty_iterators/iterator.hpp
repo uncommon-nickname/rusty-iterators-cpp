@@ -30,7 +30,7 @@ class RustyIter : public interface::IterInterface<Item<Container>, RustyIter<Con
     explicit RustyIter(Container& it) : ptr(it.begin()), end(it.end()) {}
 
     auto next() -> std::optional<T>;
-    [[nodiscard]] inline auto sizeHint() const -> std::optional<size_t>;
+    [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;
 
     template <class R = RawT>
         requires Summable<R>
@@ -65,8 +65,7 @@ auto rusty_iterators::iterator::RustyIter<Container>::next() -> std::optional<T>
 
 template <class Container>
     requires std::ranges::range<Container>
-inline auto rusty_iterators::iterator::RustyIter<Container>::sizeHint() const
-    -> std::optional<size_t>
+auto rusty_iterators::iterator::RustyIter<Container>::sizeHint() const -> std::optional<size_t>
 {
     return std::make_optional(end - ptr);
 }

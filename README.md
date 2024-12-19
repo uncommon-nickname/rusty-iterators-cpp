@@ -92,7 +92,7 @@ All of the measurements were taken on MacBook M3 Pro 18GB.
 
 |          **Benchmark**         | **Time [ns]** | **CPU [ns]** |
 |:------------------------------:|:-------------:|:------------:|
-|       benchmarkFilterMap       |    5565001    |    5564975   |
+|   benchmarkRustyIterFilterMap  |    5565001    |    5564975   |
 | benchmarkRangesFilterTransform |    5837398    |    5837397   |
 
 ## Authors

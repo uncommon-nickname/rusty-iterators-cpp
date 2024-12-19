@@ -2,8 +2,8 @@
 
 clean_run=false
 compile_tests=false
-shared_lib_option="OFF"
 cxx_compiler="g++"
+compile_benchmarks=false
 
 while [[ $# -gt 0 ]]; do
 	case $1 in
@@ -19,8 +19,8 @@ while [[ $# -gt 0 ]]; do
 		compile_tests=true
 		shift
 		;;
-	--shared-lib)
-		shared_lib_option="ON"
+	--compile-benchmarks)
+		compile_benchmarks=true
 		shift
 		;;
 	*)
@@ -35,14 +35,14 @@ echo "Build configuration:"
 echo "C++ Compiler        = ${cxx_compiler}"
 echo "Clean Run           = ${clean_run}"
 echo "Compile Tests       = ${compile_tests}"
-echo "Compile Shared Lib  = ${shared_lib_option}"
+echo "Compile Benchmarks  = ${compile_benchmarks}"
 echo
 
 cmake \
 	-G Ninja \
 	-D CMAKE_CXX_COMPILER="${cxx_compiler}" \
-	-D BUILD_SHARED_LIBS="${shared_lib_option}" \
 	-D COMPILE_TESTS="${compile_tests}" \
+	-D COMPILE_BENCHMARKS="${compile_benchmarks}" \
 	-S . \
 	-B build
 

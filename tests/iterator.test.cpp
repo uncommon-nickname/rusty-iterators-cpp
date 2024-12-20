@@ -221,3 +221,27 @@ TEST(TestIterator, AdvanceByBiggerThanSize)
 
     ASSERT_EQ(it.next(), std::nullopt);
 }
+
+TEST(TestIterator, TestNthGetFirstElement)
+{
+    auto vec = std::vector{1, 2, 3};
+    auto it  = RustyIter{vec};
+
+    ASSERT_EQ(it.nth(0).value(), 1);
+}
+
+TEST(TestIterator, TestNthGetElement)
+{
+    auto vec = std::vector{1, 2, 3};
+    auto it  = RustyIter{vec};
+
+    ASSERT_EQ(it.nth(2).value(), 3);
+}
+
+TEST(TestIterator, TestNthElementOutOfIteratorRange)
+{
+    auto vec = std::vector{1, 2, 3};
+    auto it  = RustyIter{vec};
+
+    ASSERT_EQ(it.nth(4), std::nullopt);
+}

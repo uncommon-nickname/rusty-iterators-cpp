@@ -74,6 +74,15 @@ auto data = std::vector{1, 2, 3, 4};
 auto result = RustyIter{data}.filter([](auto x) { return x % 2 != 0; }).map([](auto x) { return x * x; }).collect();
 ```
 
+### Chain two iterators
+
+```c++
+auto v1 = std::vector{1, 2, 3};
+auto v2 = std::vector{4, 5, 6};
+
+auto result = RustyIter{v1}.chain(RustyIter{v2}.map([](auto x) { return x * 2; })).collect();
+```
+
 ## Benchmarks
 
 We provide a small set of benchmarks located in the `benchmarks/` directory. You can build them using provided build script.

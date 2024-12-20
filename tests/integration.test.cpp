@@ -102,3 +102,16 @@ TEST(TestIteratorIntegration, TestChainMultipleIterators)
 
     EXPECT_THAT(it.collect(), ElementsAreArray(std::array{2, 4, 8, 10, 3, 6, 3, 6, 3, 6}));
 }
+
+TEST(TestIteratorIntegration, TestFindMaxDiffBetweenTwoPairsUsingZip)
+{
+    auto v1 = std::vector{1, 2, 3, 4, 5};
+    auto v2 = std::vector{2, 7, 4, 8, 1};
+
+    auto result = RustyIter{v1}
+                      .zip(RustyIter{v2})
+                      .map([](auto x) { return std::abs(std::get<0>(x) - std::get<1>(x)); })
+                      .max();
+
+    ASSERT_EQ(result.value(), 5);
+}

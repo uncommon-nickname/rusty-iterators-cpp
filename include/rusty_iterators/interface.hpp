@@ -8,6 +8,7 @@
 #include "map.hpp"
 #include "moving_window.hpp"
 #include "take.hpp"
+#include "zip.hpp"
 
 #include <stdexcept>
 #include <vector>
@@ -30,6 +31,7 @@ using iterator::Inspect;
 using iterator::Map;
 using iterator::MovingWindow;
 using iterator::Take;
+using iterator::Zip;
 
 template <class T, class Derived>
 class IterInterface
@@ -100,6 +102,9 @@ class IterInterface
     [[nodiscard]] auto sum() -> R;
 
     [[nodiscard]] auto take(size_t amount) -> Take<T, Derived>;
+
+    template <class Second>
+    [[nodiscard]] auto zip(Second&& it) -> Zip<T, Derived, Second>;
 
   private:
     [[nodiscard]] inline auto self() -> Derived& { return static_cast<Derived&>(*this); }
@@ -315,6 +320,14 @@ template <class T, class Derived>
 auto rusty_iterators::interface::IterInterface<T, Derived>::take(size_t amount) -> Take<T, Derived>
 {
     return Take<T, Derived>{std::forward<Derived>(self()), amount};
+}
+
+template <class T, class Derived>
+template <class Second>
+auto rusty_iterators::interface::IterInterface<T, Derived>::zip(Second&& it)
+    -> Zip<T, Derived, Second>
+{
+    return Zip<T, Derived, Second>{std::forward<Derived>(self()), std::forward<Second>(it)};
 }
 
 template <class T, class Derived>

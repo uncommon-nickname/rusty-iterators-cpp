@@ -5,7 +5,6 @@
 #include <stdexcept>
 
 using ::rusty_iterators::iterator::RustyIter;
-using ::testing::ContainerEq;
 using ::testing::ElementsAreArray;
 
 TEST(TestMovingWindowIterator, TestCollectWindows)

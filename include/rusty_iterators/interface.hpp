@@ -1,5 +1,6 @@
 #pragma once
 
+#include "chain.hpp"
 #include "concepts.hpp"
 #include "cycle.hpp"
 #include "filter.hpp"
@@ -22,6 +23,7 @@ using concepts::ForEachFunctor;
 using concepts::InspectFunctor;
 using concepts::Summable;
 
+using iterator::Chain;
 using iterator::Cycle;
 using iterator::Filter;
 using iterator::Inspect;
@@ -54,6 +56,9 @@ class IterInterface
     [[nodiscard]] auto collect() -> std::vector<T>;
     [[nodiscard]] auto count() -> size_t;
     [[nodiscard]] auto cycle() -> Cycle<T, Derived>;
+
+    template <class Second>
+    [[nodiscard]] auto chain(Second&& it) -> Chain<T, Derived, Second>;
 
     template <class Functor>
         requires FilterFunctor<T, Functor>
@@ -109,7 +114,6 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::advanceBy(size_t amo
     {
         [[unlikely]] if (!self().next().has_value())
         {
-            // Early exit if iterator was already depleted.
             break;
         }
     }
@@ -183,6 +187,14 @@ template <class T, class Derived>
 auto rusty_iterators::interface::IterInterface<T, Derived>::cycle() -> Cycle<T, Derived>
 {
     return Cycle<T, Derived>{std::forward<Derived>(self())};
+}
+
+template <class T, class Derived>
+template <class Second>
+auto rusty_iterators::interface::IterInterface<T, Derived>::chain(Second&& it)
+    -> Chain<T, Derived, Second>
+{
+    return Chain<T, Derived, Second>{std::forward<Derived>(self()), std::forward<Second>(it)};
 }
 
 template <class T, class Derived>
@@ -274,7 +286,7 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::movingWindow(size_t 
 template <class T, class Derived>
 auto rusty_iterators::interface::IterInterface<T, Derived>::nth(size_t element) -> std::optional<T>
 {
-    return self().advanceBy(element).next();
+    return advanceBy(element).next();
 }
 
 template <class T, class Derived>

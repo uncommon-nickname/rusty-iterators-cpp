@@ -87,3 +87,18 @@ TEST(TestIteratorIntegration, TestCycleAdvanceBy)
     ASSERT_EQ(it.next().value(), 2);
     ASSERT_EQ(it.next().value(), 1);
 }
+
+TEST(TestIteratorIntegration, TestChainMultipleIterators)
+{
+    auto v1 = std::vector{1, 2};
+    auto v2 = std::array{4, 5};
+    auto v3 = std::vector{3, 6};
+
+    auto it = RustyIter{v1}
+                  .chain(RustyIter{v2})
+                  .map([](auto x) { return x * 2; })
+                  .chain(RustyIter{v3}.cycle())
+                  .take(10);
+
+    EXPECT_THAT(it.collect(), ElementsAreArray(std::array{2, 4, 8, 10, 3, 6, 3, 6, 3, 6}));
+}

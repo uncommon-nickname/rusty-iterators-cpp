@@ -6,6 +6,7 @@ Checks: "
     -modernize-use-trailing-return-type,
     -cppcoreguidelines-non-private-member-variables-in-classes,
     -cppcoreguidelines-rvalue-reference-param-not-moved,
+    -cppcoreguidelines-avoid-magic-numbers
 "
 WarningsAsErrors: true
 HeaderFilterRegex: ".*"

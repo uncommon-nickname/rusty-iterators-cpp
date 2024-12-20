@@ -1,6 +1,6 @@
 #pragma once
 
-#include <concepts>
+#include <tuple>
 
 namespace rusty_iterators::concepts
 {
@@ -12,6 +12,11 @@ concept AllFunctor = requires(Functor f, T t) {
 template <class T, class Functor>
 concept AnyFunctor = AllFunctor<T, Functor>;
 
+template <class T>
+concept Comparable = requires(T first, T second) {
+    { first > second } -> std::same_as<bool>;
+    { first < second } -> std::same_as<bool>;
+};
 template <class T, class Functor>
 concept FilterFunctor = AllFunctor<T, Functor>;
 
@@ -34,8 +39,8 @@ concept Summable = requires(T first, T second) {
 };
 
 template <class T>
-concept Comparable = requires(T first, T second) {
-    { first > second } -> std::same_as<bool>;
-    { first < second } -> std::same_as<bool>;
+concept TupleLike = requires(T t) {
+    std::tuple_size<T>::value == 2;
+    std::get<0>(t);
 };
 } // namespace rusty_iterators::concepts

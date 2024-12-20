@@ -41,7 +41,9 @@ Some simple examples of usage.
 
 ```c++
 auto data = std::vector{1, 2, 3, 4, 5, 6};
-auto result = RustyIter{data}.filter([](auto x) { return x % 2 == 0; }).count();
+auto result = RustyIter{data}
+                .filter([](auto x) { return x % 2 == 0; })
+                .count();
 ```
 
 ### Get `n` items from cycle iterator
@@ -64,14 +66,19 @@ RustyIter{data}.forEach(std::move(f));
 
 ```c++
 auto data = std::vector<std::string>{"a", "abc", "defg"};
-auto result = RustyIter{data}.map([](auto x) { return x.get().size(); }).min();
+auto result = RustyIter{data}
+                .map([](auto x) { return x.get().size(); })
+                .min();
 ```
 
 ### Filter out all even numbers and square the odd numbers
 
 ```c++
 auto data = std::vector{1, 2, 3, 4};
-auto result = RustyIter{data}.filter([](auto x) { return x % 2 != 0; }).map([](auto x) { return x * x; }).collect();
+auto result = RustyIter{data}
+                .filter([](auto x) { return x % 2 != 0; })
+                .map([](auto x) { return x * x; })
+                .collect();
 ```
 
 ### Chain two iterators
@@ -80,7 +87,22 @@ auto result = RustyIter{data}.filter([](auto x) { return x % 2 != 0; }).map([](a
 auto v1 = std::vector{1, 2, 3};
 auto v2 = std::vector{4, 5, 6};
 
-auto result = RustyIter{v1}.chain(RustyIter{v2}.map([](auto x) { return x * 2; })).collect();
+auto result = RustyIter{v1}
+                .chain(RustyIter{v2}
+                .map([](auto x) { return x * 2; }))
+                .collect();
+```
+
+### Find biggest difference between elements of two iterators
+
+```c++
+auto v1 = std::vector{1, 2, 3, 4, 5};
+auto v2 = std::vector{2, 7, 4, 8, 1};
+
+auto result = RustyIter{v1}
+                    .zip(RustyIter{v2})
+                    .map([](auto x) { return std::abs(std::get<0>(x) - std::get<1>(x)); })
+                    .max();
 ```
 
 ## Benchmarks

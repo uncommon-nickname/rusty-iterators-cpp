@@ -59,3 +59,14 @@ TEST(TestZipIterator, TestSizeHintWhenBothInf)
 
     ASSERT_EQ(it.sizeHint(), std::nullopt);
 }
+
+TEST(TestZipIterator, TestDifferentTypesOfZippedIterators)
+{
+    auto v1 = std::vector{1, 2, 3};
+    auto v2 = std::vector<std::string>{"a", "b", "c"};
+
+    auto item = RustyIter{v1}.zip(RustyIter{v2}).next().value();
+
+    ASSERT_EQ(std::get<0>(item), 1);
+    ASSERT_EQ(std::get<1>(item).get(), "a");
+}

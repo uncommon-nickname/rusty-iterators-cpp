@@ -205,3 +205,19 @@ TEST(TestIterator, AllReturnsFalseIfOneDoesntFit)
 
     ASSERT_FALSE(result);
 }
+
+TEST(TestIterator, AdvanceByMovesIteratorPtr)
+{
+    auto vec = std::vector{1, 2, 3, 4};
+    auto it  = RustyIter{vec}.advanceBy(3);
+
+    ASSERT_EQ(it.next().value(), 4);
+}
+
+TEST(TestIterator, AdvanceByBiggerThanSize)
+{
+    auto vec = std::vector{1, 2, 3};
+    auto it  = RustyIter{vec}.advanceBy(4);
+
+    ASSERT_EQ(it.next(), std::nullopt);
+}

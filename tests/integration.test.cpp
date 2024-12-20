@@ -78,3 +78,12 @@ TEST(TestIteratorIntegration, TestWindowsOverCycle)
     EXPECT_THAT(it.next().value(), ElementsAreArray(std::array{3, 1}));
     EXPECT_THAT(it.next().value(), ElementsAreArray(std::array{1, 2}));
 }
+
+TEST(TestIteratorIntegration, TestCycleAdvanceBy)
+{
+    auto vec = std::vector{1, 2};
+    auto it  = RustyIter{vec}.cycle().advanceBy(3);
+
+    ASSERT_EQ(it.next().value(), 2);
+    ASSERT_EQ(it.next().value(), 1);
+}

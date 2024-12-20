@@ -41,6 +41,8 @@ class IterInterface
     IterInterface(IterInterface&&)                 = default;
     IterInterface& operator=(IterInterface&&)      = default;
 
+    [[nodiscard]] auto advanceBy(size_t amount) -> Derived;
+
     template <class Functor>
         requires AnyFunctor<T, Functor>
     [[nodiscard]] auto any(Functor&& f) -> bool;
@@ -98,6 +100,20 @@ class IterInterface
     auto sizeHintChecked() -> size_t;
 };
 } // namespace rusty_iterators::interface
+
+template <class T, class Derived>
+auto rusty_iterators::interface::IterInterface<T, Derived>::advanceBy(size_t amount) -> Derived
+{
+    for (size_t i = 0; i < amount; i++)
+    {
+        [[unlikely]] if (!self().next().has_value())
+        {
+            // Early exit if iterator was already depleted.
+            break;
+        }
+    }
+    return std::move(self());
+}
 
 template <class T, class Derived>
 template <class Functor>

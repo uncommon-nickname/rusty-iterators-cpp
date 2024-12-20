@@ -51,7 +51,7 @@ auto benchmarkRustyIterCycle(benchmark::State& state) -> void
     }
 }
 
-auto benchmarkMovingWindow(benchmark::State& state) -> void
+auto benchmarkRustyIterMovingWindow(benchmark::State& state) -> void
 {
     auto data = initializeIncrementalVector();
 
@@ -64,4 +64,4 @@ auto benchmarkMovingWindow(benchmark::State& state) -> void
 BENCHMARK(benchmarkRustyIterFilterMap);
 BENCHMARK(benchmarkRangesFilterTransform);
 BENCHMARK(benchmarkRustyIterCycle);
-BENCHMARK(benchmarkMovingWindow);
+BENCHMARK(benchmarkRustyIterMovingWindow);

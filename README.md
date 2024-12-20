@@ -91,7 +91,7 @@ We provide a small set of benchmarks located in the `benchmarks/` directory. You
 ./build.sh --clang --compile-benchmarks
 ```
 
-All of the benchmarks measure the performance in release mode and run similar scenario using C++20 `std::ranges` (if it has a benchmarked feature) to compare how fast, or how slow we are.
+All of the benchmarks measure the performance in release mode and run similar scenario using C++20 `std::ranges` (if it is possible to recreate tested feature without writing a lot of code) to compare how fast, or how slow we are.
 
 ### Current measurements
 
@@ -112,9 +112,9 @@ All of the measurements were taken on MacBook M3 Pro 18GB.
 
 #### Collect 3 element moving windows from 10 000 000 ints
 
-|     **Benchmark**     | **Time [ns]** | **CPU [ns]** |
-|:---------------------:|:-------------:|:------------:|
-| benchmarkMovingWindow |   239452403   |   238830667  |
+|          **Benchmark**         | **Time [ns]** | **CPU [ns]** |
+|:------------------------------:|:-------------:|:------------:|
+| benchmarkRustyIterMovingWindow |   239452403   |   238830667  |
 
 ## Authors
 

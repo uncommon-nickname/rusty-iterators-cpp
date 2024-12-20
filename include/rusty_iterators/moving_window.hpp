@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rusty_iterators/interface.fwd.hpp"
+#include "interface.fwd.hpp"
 
 #include <optional>
 #include <stdexcept>

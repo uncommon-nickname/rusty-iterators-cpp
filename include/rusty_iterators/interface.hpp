@@ -84,6 +84,7 @@ class IterInterface
     [[nodiscard]] auto min() -> std::optional<R>;
 
     [[nodiscard]] auto movingWindow(size_t size) -> MovingWindow<T, Derived>;
+    [[nodiscard]] auto nth(size_t element) -> std::optional<T>;
 
     template <class Functor>
         requires FoldFunctor<T, T, Functor>
@@ -268,6 +269,12 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::movingWindow(size_t 
     -> MovingWindow<T, Derived>
 {
     return MovingWindow<T, Derived>{std::forward<Derived>(self()), size};
+}
+
+template <class T, class Derived>
+auto rusty_iterators::interface::IterInterface<T, Derived>::nth(size_t element) -> std::optional<T>
+{
+    return self().advanceBy(element).next();
 }
 
 template <class T, class Derived>

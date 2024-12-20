@@ -37,6 +37,8 @@ template <class T, class Derived>
 class IterInterface
 {
   public:
+    using Type = T;
+
     IterInterface()          = default;
     virtual ~IterInterface() = default;
 
@@ -104,7 +106,7 @@ class IterInterface
     [[nodiscard]] auto take(size_t amount) -> Take<T, Derived>;
 
     template <class Second>
-    [[nodiscard]] auto zip(Second&& it) -> Zip<T, Derived, Second>;
+    [[nodiscard]] auto zip(Second&& it) -> Zip<T, typename Second::Type, Derived, Second>;
 
   private:
     [[nodiscard]] inline auto self() -> Derived& { return static_cast<Derived&>(*this); }
@@ -325,9 +327,10 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::take(size_t amount) 
 template <class T, class Derived>
 template <class Second>
 auto rusty_iterators::interface::IterInterface<T, Derived>::zip(Second&& it)
-    -> Zip<T, Derived, Second>
+    -> Zip<T, typename Second::Type, Derived, Second>
 {
-    return Zip<T, Derived, Second>{std::forward<Derived>(self()), std::forward<Second>(it)};
+    return Zip<T, typename Second::Type, Derived, Second>{std::forward<Derived>(self()),
+                                                          std::forward<Second>(it)};
 }
 
 template <class T, class Derived>

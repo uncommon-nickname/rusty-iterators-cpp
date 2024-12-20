@@ -13,8 +13,6 @@ using interface::IterInterface;
 template <class T, class Other>
 class MovingWindow : public IterInterface<std::vector<T>, MovingWindow<T, Other>>
 {
-    using R = std::vector<T>;
-
   public:
     explicit MovingWindow(Other&& it, size_t size)
         : it(std::forward<Other>(it)), orig(this->it), size(size)
@@ -25,7 +23,7 @@ class MovingWindow : public IterInterface<std::vector<T>, MovingWindow<T, Other>
         }
     }
 
-    auto next() -> std::optional<R>;
+    auto next() -> std::optional<std::vector<T>>;
     [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;
 
     friend auto operator<<(auto& os, MovingWindow<T, Other> const& m) -> std::ostream&
@@ -45,7 +43,7 @@ class MovingWindow : public IterInterface<std::vector<T>, MovingWindow<T, Other>
 } // namespace rusty_iterators::iterator
 
 template <class T, class Other>
-auto rusty_iterators::iterator::MovingWindow<T, Other>::next() -> std::optional<R>
+auto rusty_iterators::iterator::MovingWindow<T, Other>::next() -> std::optional<std::vector<T>>
 {
     auto result = std::vector<T>{};
     result.reserve(size);

@@ -245,3 +245,14 @@ TEST(TestIterator, TestNthElementOutOfIteratorRange)
 
     ASSERT_EQ(it.nth(4), std::nullopt);
 }
+
+TEST(TestIterator, TestUnzipIterator)
+{
+    auto v1 = std::vector{1, 2, 3, 4};
+    auto v2 = std::vector{2.3, 1.5, 4.3};
+
+    auto [f, s] = RustyIter{v1}.zip(RustyIter{v2}).unzip();
+
+    EXPECT_THAT(f, ElementsAreArray(std::array{1, 2, 3}));
+    EXPECT_THAT(s, ElementsAreArray(std::array{2.3, 1.5, 4.3}));
+}

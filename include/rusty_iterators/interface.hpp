@@ -23,6 +23,7 @@ using concepts::FoldFunctor;
 using concepts::ForEachFunctor;
 using concepts::InspectFunctor;
 using concepts::Summable;
+using concepts::TupleLike;
 
 using iterator::Chain;
 using iterator::Cycle;
@@ -104,6 +105,11 @@ class IterInterface
     [[nodiscard]] auto sum() -> R;
 
     [[nodiscard]] auto take(size_t amount) -> Take<T, Derived>;
+
+    template <class R = T>
+        requires TupleLike<R>
+    [[nodiscard]] auto unzip() -> std::tuple<std::vector<typename std::tuple_element<0, R>::type>,
+                                             std::vector<typename std::tuple_element<1, R>::type>>;
 
     template <class Second>
     [[nodiscard]] auto zip(Second&& it) -> Zip<T, typename Second::Type, Derived, Second>;
@@ -322,6 +328,33 @@ template <class T, class Derived>
 auto rusty_iterators::interface::IterInterface<T, Derived>::take(size_t amount) -> Take<T, Derived>
 {
     return Take<T, Derived>{std::forward<Derived>(self()), amount};
+}
+
+template <class T, class Derived>
+template <class R>
+    requires rusty_iterators::concepts::TupleLike<R>
+auto rusty_iterators::interface::IterInterface<T, Derived>::unzip()
+    -> std::tuple<std::vector<typename std::tuple_element<0, R>::type>,
+                  std::vector<typename std::tuple_element<1, R>::type>>
+{
+    auto size = sizeHintChecked();
+
+    auto first  = std::vector<typename std::tuple_element<0, R>::type>{};
+    auto second = std::vector<typename std::tuple_element<1, R>::type>{};
+
+    first.reserve(size);
+    second.reserve(size);
+
+    auto nextItem = self().next();
+
+    [[likely]] while (nextItem.has_value())
+    {
+        auto [f, s] = nextItem.value();
+        first.push_back(std::move(f));
+        second.push_back(std::move(s));
+        nextItem = self().next();
+    }
+    return std::move(std::tuple{std::move(first), std::move(second)});
 }
 
 template <class T, class Derived>

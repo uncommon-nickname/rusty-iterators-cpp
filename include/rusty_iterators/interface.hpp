@@ -22,6 +22,7 @@ using concepts::FilterFunctor;
 using concepts::FoldFunctor;
 using concepts::ForEachFunctor;
 using concepts::InspectFunctor;
+using concepts::PositionFunctor;
 using concepts::Summable;
 using concepts::TupleLike;
 
@@ -95,6 +96,10 @@ class IterInterface
 
     [[nodiscard]] auto movingWindow(size_t size) -> MovingWindow<T, Derived>;
     [[nodiscard]] auto nth(size_t element) -> std::optional<T>;
+
+    template <class Functor>
+        requires PositionFunctor<T, Functor>
+    [[nodiscard]] auto position(Functor&& f) -> std::optional<size_t>;
 
     template <class Functor>
         requires FoldFunctor<T, T, Functor>
@@ -248,7 +253,7 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::forEach(Functor&& f)
     auto func     = std::forward<Functor>(f);
     auto nextItem = self().next();
 
-    while (nextItem.has_value())
+    [[likely]] while (nextItem.has_value())
     {
         func(std::move(nextItem.value()));
         nextItem = self().next();
@@ -300,6 +305,30 @@ template <class T, class Derived>
 auto rusty_iterators::interface::IterInterface<T, Derived>::nth(size_t element) -> std::optional<T>
 {
     return advanceBy(element).next();
+}
+
+template <class T, class Derived>
+template <class Functor>
+    requires rusty_iterators::concepts::PositionFunctor<T, Functor>
+auto rusty_iterators::interface::IterInterface<T, Derived>::position(Functor&& f)
+    -> std::optional<size_t>
+{
+    // TODO: Move this to use `tryFold` when implemented.
+    sizeHintChecked();
+
+    auto func       = std::forward<Functor>(f);
+    auto nextItem   = self().next();
+    size_t position = 0;
+
+    [[likely]] while (nextItem.has_value())
+    {
+        if (func(nextItem.value()))
+        {
+            return std::make_optional(position);
+        }
+        nextItem = self().next();
+    }
+    return std::nullopt;
 }
 
 template <class T, class Derived>

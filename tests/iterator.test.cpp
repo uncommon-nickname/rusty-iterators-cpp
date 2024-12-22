@@ -256,3 +256,27 @@ TEST(TestIterator, TestUnzipIterator)
     EXPECT_THAT(f, ElementsAreArray(std::array{1, 2, 3}));
     EXPECT_THAT(s, ElementsAreArray(std::array{2.3, 1.5, 4.3}));
 }
+
+TEST(TestIterator, TestPositionOfEmptyIterator)
+{
+    auto vec    = std::vector<int>{};
+    auto result = RustyIter{vec}.position([](auto x) { return x == 1; });
+
+    ASSERT_EQ(result, std::nullopt);
+}
+
+TEST(TestIterator, TestPositionIndexedFromZero)
+{
+    auto vec    = std::vector{1, 2, 3};
+    auto result = RustyIter{vec}.position([](auto x) { return x == 1; });
+
+    ASSERT_EQ(result.value(), 0);
+}
+
+TEST(TestIterator, TestPositionNoValueMatched)
+{
+    auto vec    = std::vector{1, 2, 3};
+    auto result = RustyIter{vec}.position([](auto x) { return x > 5; });
+
+    ASSERT_EQ(result, std::nullopt);
+}

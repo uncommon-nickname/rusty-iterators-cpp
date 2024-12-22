@@ -31,6 +31,9 @@ concept ForEachFunctor = requires(Functor f, T t) {
 };
 
 template <class T, class Functor>
+concept PositionFunctor = AllFunctor<T, Functor>;
+
+template <class T, class Functor>
 concept InspectFunctor = ForEachFunctor<T, Functor>;
 
 template <class T>

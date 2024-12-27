@@ -41,27 +41,5 @@ auto benchmarkRangesFilterTransform(benchmark::State& state) -> void
     }
 }
 
-auto benchmarkRustyIterCycle(benchmark::State& state) -> void
-{
-    auto data = std::vector{1, 2, 3};
-
-    for (auto _ : state)
-    {
-        auto result = RustyIter{data}.cycle().take(test_elements_amount).collect();
-    }
-}
-
-auto benchmarkRustyIterMovingWindow(benchmark::State& state) -> void
-{
-    auto data = initializeIncrementalVector();
-
-    for (auto _ : state)
-    {
-        auto result = RustyIter{data}.movingWindow(3).collect();
-    }
-}
-
 BENCHMARK(benchmarkRustyIterFilterMap);
 BENCHMARK(benchmarkRangesFilterTransform);
-BENCHMARK(benchmarkRustyIterCycle);
-BENCHMARK(benchmarkRustyIterMovingWindow);

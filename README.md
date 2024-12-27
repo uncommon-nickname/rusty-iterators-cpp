@@ -126,18 +126,6 @@ All of the measurements were taken on MacBook M3 Pro 18GB.
 |   benchmarkRustyIterFilterMap  |    5565001    |    5564975   |
 | benchmarkRangesFilterTransform |    5837398    |    5837397   |
 
-#### Take 10 000 000 ints from cycle iterator
-
-|      **Benchmark**      | **Time [ns]** | **CPU [ns]** |
-|:-----------------------:|:-------------:|:------------:|
-| benchmarkRustyIterCycle |    20826145   |   20825206   |
-
-#### Collect 3 element moving windows from 10 000 000 ints
-
-|          **Benchmark**         | **Time [ns]** | **CPU [ns]** |
-|:------------------------------:|:-------------:|:------------:|
-| benchmarkRustyIterMovingWindow |   239452403   |   238830667  |
-
 ## Authors
 
 - [Wiktor Nowak](@uncommon-nickname)

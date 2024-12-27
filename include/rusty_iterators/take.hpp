@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iostream>
 #include <optional>
+#include <stdexcept>
 
 namespace rusty_iterators::iterator
 {
@@ -14,7 +15,13 @@ template <class T, class Other>
 class Take : public IterInterface<T, Take<T, Other>>
 {
   public:
-    Take(Other&& it, size_t size) : it(std::forward<Other>(it)), size(size) {}
+    Take(Other&& it, size_t size) : it(std::forward<Other>(it)), size(size)
+    {
+        if (size == 0)
+        {
+            throw std::length_error{"You have to take at least one item."};
+        }
+    }
 
     auto next() -> std::optional<T>;
     [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;

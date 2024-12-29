@@ -1,16 +1,19 @@
-name: Build and run tests
+name: Build And Run Tests
 
 on:
   push:
     branches: [ $default-branch ]
   pull_request:
-    branches: [ $default-branch ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  Build:
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Ninja
+        run: sudo apt-get install -y ninja-build
 
       - name: Build
         run: ./build.sh --compile-tests --compile-benchmarks

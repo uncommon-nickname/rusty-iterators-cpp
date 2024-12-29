@@ -2,7 +2,7 @@
 
 clean_run=false
 compile_tests=false
-cxx_compiler="g++"
+cxx_compiler="g++-14"
 compile_benchmarks=false
 
 while [[ $# -gt 0 ]]; do

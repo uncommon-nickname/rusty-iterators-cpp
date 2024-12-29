@@ -1,0 +1,25 @@
+name: Build And Run Tests
+
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+
+jobs:
+  Build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Ninja
+        run: sudo apt-get install -y ninja-build
+
+      - name: Build
+        run: ./build.sh --compile-tests --compile-benchmarks
+
+      - name: Test
+        run: ./build/tests/rusty_iterators_tests
+
+      - name: Bench
+        run: ./build/benchmarks/rusty_iterators_benchmarks

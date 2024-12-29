@@ -1,0 +1,22 @@
+name: Build and run tests
+
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: ./build.sh --compile-tests --compile-benchmarks
+
+      - name: Test
+        run: ./build/tests/rusty_iterators_tests
+
+      - name: Bench
+        run: ./build/benchmarks/rusty_iterators_benchmarks

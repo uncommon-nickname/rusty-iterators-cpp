@@ -21,6 +21,7 @@ using concepts::Comparable;
 using concepts::FilterFunctor;
 using concepts::FoldFunctor;
 using concepts::ForEachFunctor;
+using concepts::Indexable;
 using concepts::InspectFunctor;
 using concepts::PositionFunctor;
 using concepts::Summable;
@@ -115,6 +116,11 @@ class IterInterface
         requires TupleLike<R>
     [[nodiscard]] auto unzip() -> std::tuple<std::vector<typename std::tuple_element<0, R>::type>,
                                              std::vector<typename std::tuple_element<1, R>::type>>;
+
+    template <class R = T>
+        requires Indexable<R>
+    [[nodiscard]] auto unzip()
+        -> std::tuple<std::vector<typename R::value_type>, std::vector<typename R::value_type>>;
 
     template <class Second>
     [[nodiscard]] auto zip(Second&& it) -> Zip<T, typename Second::Type, Derived, Second>;
@@ -383,6 +389,33 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::unzip()
         second.push_back(std::move(s));
         nextItem = self().next();
     }
+    return std::move(std::tuple{std::move(first), std::move(second)});
+}
+
+template <class T, class Derived>
+template <class R>
+    requires rusty_iterators::concepts::Indexable<R>
+auto rusty_iterators::interface::IterInterface<T, Derived>::unzip()
+    -> std::tuple<std::vector<typename R::value_type>, std::vector<typename R::value_type>>
+{
+    auto size = sizeHintChecked();
+
+    auto first  = std::vector<typename R::value_type>{};
+    auto second = std::vector<typename R::value_type>{};
+
+    first.reserve(size);
+    second.reserve(size);
+
+    auto nextItem = self().next();
+
+    [[likely]] while (nextItem.has_value())
+    {
+        auto value = nextItem.value();
+        first.push_back(std::move(value.at(0)));
+        second.push_back(std::move(value.at(1)));
+        nextItem = self().next();
+    }
+
     return std::move(std::tuple{std::move(first), std::move(second)});
 }
 

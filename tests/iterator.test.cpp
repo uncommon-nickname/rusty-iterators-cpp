@@ -257,6 +257,15 @@ TEST(TestIterator, TestUnzipIterator)
     EXPECT_THAT(s, ElementsAreArray(std::array{2.3, 1.5, 4.3}));
 }
 
+TEST(TestIterator, TestUnzipVectorElement)
+{
+    auto vec    = std::vector{1, 2, 3, 4};
+    auto [f, s] = RustyIter{vec}.movingWindow(2).unzip();
+
+    EXPECT_THAT(f, ElementsAreArray(std::array{1, 2, 3}));
+    EXPECT_THAT(s, ElementsAreArray(std::array{2, 3, 4}));
+}
+
 TEST(TestIterator, TestPositionOfEmptyIterator)
 {
     auto vec    = std::vector<int>{};

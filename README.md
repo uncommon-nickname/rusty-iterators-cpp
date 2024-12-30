@@ -15,7 +15,7 @@ We utilize [conventional commits](https://gist.github.com/qoomon/5dfcdf8eec66a05
 We use both `clang-tidy` and `clang-format`. The former is integrated with CMake and will be run during build. The latter can be run using provided formatting script.
 
 ```bash
-./format.sh
+./tools/format.sh
 ```
 
 ## Building the project
@@ -23,14 +23,14 @@ We use both `clang-tidy` and `clang-format`. The former is integrated with CMake
 We provide a small utility script to build the project. We use both CMake and Ninja, so make sure you have those installed.
 
 ```bash
-# Clean build using Clang:
-./build.sh --clang --no-cache --compile-tests
+# Clean build:
+./tools/build.sh --no-cache --compile-tests
 
-# Clean build using GCC:
-./build.sh --no-cache --compile-tests
+# Build with specified compiler:
+./tools/build.sh --compiler g++-14 --compile-tests --no-cache
 
 # Cached build:
-./build.sh --clang --compile-tests
+./tools/build.sh --compile-tests
 ```
 
 ## Examples
@@ -110,7 +110,7 @@ auto result = RustyIter{v1}
 We provide a small set of benchmarks located in the `benchmarks/` directory. You can build them using provided build script.
 
 ```bash
-./build.sh --clang --compile-benchmarks
+./tools/build.sh --compile-benchmarks
 ```
 
 All of the benchmarks measure the performance in release mode and run similar scenario using C++20 `std::ranges` (if it is possible to recreate tested feature without writing a lot of code) to compare how fast, or how slow we are.

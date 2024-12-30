@@ -12,14 +12,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Check Format
+        run: ./tools/format.sh --dry-run
+
       - name: Install Ninja
         run: sudo apt-get install -y ninja-build
 
       - name: Build
-        run: ./build.sh --compile-tests --compile-benchmarks
+        run: ./tools/build.sh --compiler g++-14 --compile-tests
 
       - name: Test
         run: ./build/tests/rusty_iterators_tests
-
-      - name: Bench
-        run: ./build/benchmarks/rusty_iterators_benchmarks

@@ -30,6 +30,12 @@ concept ForEachFunctor = requires(Functor f, T t) {
     { f(t) } -> std::same_as<void>;
 };
 
+template <class T>
+concept Indexable = requires(T t) {
+    typename T::value_type;
+    t.at(0);
+};
+
 template <class T, class Functor>
 concept PositionFunctor = AllFunctor<T, Functor>;
 

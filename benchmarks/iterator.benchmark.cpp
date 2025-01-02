@@ -4,7 +4,8 @@
 #include <numeric>
 #include <ranges>
 
-using rusty_iterators::iterator::RustyIter;
+using ::rusty_iterators::iterator::CycleType;
+using ::rusty_iterators::iterator::RustyIter;
 
 constexpr size_t test_elements_amount = 10'000'000;
 
@@ -41,5 +42,28 @@ auto benchmarkRangesFilterTransform(benchmark::State& state) -> void
     }
 }
 
+auto benchmarkCopyCycle(benchmark::State& state) -> void
+{
+    auto data = std::vector{1, 2, 3};
+
+    for (auto _ : state)
+    {
+        auto result = RustyIter{data}.cycle<CycleType::Copy>().take(test_elements_amount).collect();
+    }
+}
+
+auto benchmarkCacheCycle(benchmark::State& state) -> void
+{
+    auto data = std::vector{1, 2, 3};
+
+    for (auto _ : state)
+    {
+        auto result =
+            RustyIter{data}.cycle<CycleType::Cache>().take(test_elements_amount).collect();
+    }
+}
+
 BENCHMARK(benchmarkRustyIterFilterMap);
 BENCHMARK(benchmarkRangesFilterTransform);
+BENCHMARK(benchmarkCopyCycle);
+BENCHMARK(benchmarkCacheCycle);

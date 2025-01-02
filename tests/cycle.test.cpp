@@ -4,6 +4,7 @@
 #include <rusty_iterators/iterator.hpp>
 #include <stdexcept>
 
+using ::rusty_iterators::iterator::CycleType;
 using ::rusty_iterators::iterator::RustyIter;
 using ::testing::ElementsAreArray;
 
@@ -133,4 +134,14 @@ TEST(TestCycleIterator, CycleSavesTheCurrentState)
     ASSERT_EQ(c.next(), 2);
     ASSERT_EQ(c.next(), 3);
     ASSERT_EQ(c.next(), 2);
+}
+
+TEST(TestCycleIterator, ConstructTheCacheCycle)
+{
+    auto vec = std::vector{1, 2};
+    auto it  = RustyIter{vec}.cycle<CycleType::Cache>();
+
+    ASSERT_EQ(it.next(), 1);
+    ASSERT_EQ(it.next(), 2);
+    ASSERT_EQ(it.next(), 1);
 }

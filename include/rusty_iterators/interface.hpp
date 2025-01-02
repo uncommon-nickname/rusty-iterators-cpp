@@ -26,8 +26,10 @@ using concepts::PositionFunctor;
 using concepts::Summable;
 using concepts::TupleLike;
 
+using iterator::CacheCycle;
 using iterator::Chain;
-using iterator::Cycle;
+using iterator::CopyCycle;
+using iterator::CycleType;
 using iterator::Filter;
 using iterator::Inspect;
 using iterator::Map;
@@ -61,7 +63,14 @@ class IterInterface
 
     [[nodiscard]] auto collect() -> std::vector<T>;
     [[nodiscard]] auto count() -> size_t;
-    [[nodiscard]] auto cycle() -> Cycle<T, Derived>;
+
+    template <CycleType type = CycleType::Copy>
+        requires(type == CycleType::Copy)
+    [[nodiscard]] auto cycle() -> CopyCycle<T, Derived>;
+
+    template <CycleType type>
+        requires(type == CycleType::Cache)
+    [[nodiscard]] auto cycle() -> CacheCycle<T, Derived>;
 
     template <class Second>
     [[nodiscard]] auto chain(Second&& it) -> Chain<T, Derived, Second>;
@@ -202,9 +211,19 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::count() -> size_t
 }
 
 template <class T, class Derived>
-auto rusty_iterators::interface::IterInterface<T, Derived>::cycle() -> Cycle<T, Derived>
+template <rusty_iterators::iterator::CycleType type>
+    requires(type == rusty_iterators::iterator::CycleType::Copy)
+auto rusty_iterators::interface::IterInterface<T, Derived>::cycle() -> CopyCycle<T, Derived>
 {
-    return Cycle<T, Derived>{std::forward<Derived>(self())};
+    return CopyCycle<T, Derived>{std::forward<Derived>(self())};
+}
+
+template <class T, class Derived>
+template <rusty_iterators::iterator::CycleType type>
+    requires(type == rusty_iterators::iterator::CycleType::Cache)
+auto rusty_iterators::interface::IterInterface<T, Derived>::cycle() -> CacheCycle<T, Derived>
+{
+    return CacheCycle<T, Derived>{std::forward<Derived>(self())};
 }
 
 template <class T, class Derived>

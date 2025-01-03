@@ -9,21 +9,27 @@ namespace rusty_iterators::iterator
 {
 using interface::IterInterface;
 
+enum class CycleType : uint8_t
+{
+    Copy,
+    Cache,
+};
+
 template <class T, class Other>
-class Cycle : public IterInterface<T, Cycle<T, Other>>
+class CopyCycle : public IterInterface<T, CopyCycle<T, Other>>
 {
   public:
-    explicit Cycle(Other&& it) : it(std::forward<Other>(it)), original(this->it) {};
+    explicit CopyCycle(Other&& it) : it(std::forward<Other>(it)), original(this->it) {};
 
     auto next() -> std::optional<T>;
     [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;
 
-    friend auto operator<<(auto& os, Cycle<T, Other> const& m) -> std::ostream&
+    friend auto operator<<(auto& os, CopyCycle<T, Other> const& m) -> std::ostream&
     {
         auto size    = m.sizeHint();
         auto sizeStr = size.has_value() ? std::to_string(size.value()) : "inf";
 
-        return os << "Cycle{ size=" << sizeStr << ", it=" << m.it << ", orig=" << m.original
+        return os << "CopyCycle{ size=" << sizeStr << ", it=" << m.it << ", orig=" << m.original
                   << " }";
     }
 
@@ -31,10 +37,34 @@ class Cycle : public IterInterface<T, Cycle<T, Other>>
     Other it;
     Other original;
 };
+
+template <class T, class Other>
+class CacheCycle : public IterInterface<T, CacheCycle<T, Other>>
+{
+  public:
+    explicit CacheCycle(Other&& it) : it(std::forward<Other>(it)) {};
+
+    auto next() -> std::optional<T>;
+    [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;
+
+    friend auto operator<<(auto& os, CacheCycle<T, Other> const& m) -> std::ostream&
+    {
+        auto size    = m.sizeHint();
+        auto sizeStr = size.has_value() ? std::to_string(size.value()) : "inf";
+
+        return os << "CacheCycle{ size=" << sizeStr << ", it=" << m.it << " }";
+    }
+
+  private:
+    Other it;
+    std::vector<T> cache{};
+    bool useCache = false;
+    size_t ptr    = 0;
+};
 } // namespace rusty_iterators::iterator
 
 template <class T, class Other>
-auto rusty_iterators::iterator::Cycle<T, Other>::next() -> std::optional<T>
+auto rusty_iterators::iterator::CopyCycle<T, Other>::next() -> std::optional<T>
 {
     auto item = it.next();
 
@@ -47,10 +77,51 @@ auto rusty_iterators::iterator::Cycle<T, Other>::next() -> std::optional<T>
 }
 
 template <class T, class Other>
-auto rusty_iterators::iterator::Cycle<T, Other>::sizeHint() const -> std::optional<size_t>
+auto rusty_iterators::iterator::CopyCycle<T, Other>::sizeHint() const -> std::optional<size_t>
 {
     // Cycle iterator is either infinite or empty.
-    auto size = original.sizeHint();
+    auto size = it.sizeHint();
+
+    if (size.has_value() && size.value() > 0)
+    {
+        return std::nullopt;
+    }
+    return 0;
+}
+
+template <class T, class Other>
+auto rusty_iterators::iterator::CacheCycle<T, Other>::next() -> std::optional<T>
+{
+    if (useCache)
+    {
+        ptr %= cache.size();
+        auto nextItem = cache.at(ptr);
+        ptr += 1;
+        return std::make_optional(nextItem);
+    }
+
+    auto nextItem = this->it.next();
+
+    if (!nextItem.has_value())
+    {
+        if (cache.size() == 0)
+        {
+            // If cycle is empty, we don't want to go into cached logic.
+            return std::nullopt;
+        }
+        useCache = true;
+        return next();
+    }
+
+    cache.push_back(nextItem.value());
+    return nextItem;
+}
+
+template <class T, class Other>
+auto rusty_iterators::iterator::CacheCycle<T, Other>::sizeHint() const -> std::optional<size_t>
+{
+    // Cycle iterator is either infinite or empty.
+    auto size = it.sizeHint();
 
     if (size.has_value() && size.value() > 0)
     {

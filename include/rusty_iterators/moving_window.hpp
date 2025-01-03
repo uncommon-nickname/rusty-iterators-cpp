@@ -26,15 +26,6 @@ class MovingWindow : public IterInterface<std::vector<T>, MovingWindow<T, Other>
     auto next() -> std::optional<std::vector<T>>;
     [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;
 
-    friend auto operator<<(auto& os, MovingWindow<T, Other> const& m) -> std::ostream&
-    {
-        auto size    = m.sizeHint();
-        auto sizeStr = size.has_value() ? std::to_string(size.value()) : "inf";
-
-        return os << "MovingWindow{ windowSize=" << m.size << ", size=" << sizeStr
-                  << ", it=" << m.it << ", orig=" << m.orig << " }";
-    }
-
   private:
     Other it;
     Other orig;

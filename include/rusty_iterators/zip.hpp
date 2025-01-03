@@ -2,8 +2,8 @@
 
 #include "interface.fwd.hpp"
 
+#include <algorithm>
 #include <optional>
-#include <string>
 #include <tuple>
 
 namespace rusty_iterators::iterator
@@ -20,15 +20,6 @@ class Zip : public IterInterface<std::tuple<T, R>, Zip<T, R, First, Second>>
 
     auto next() -> std::optional<std::tuple<T, R>>;
     [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;
-
-    friend auto operator<<(auto& os, Zip<T, R, First, Second> const& m) -> std::ostream&
-    {
-        auto size    = m.sizeHint();
-        auto sizeStr = size.has_value() ? std::to_string(size.value()) : "inf";
-
-        return os << "Zip{ size=" << sizeStr << ", first=" << m.first << ", second=" << m.second
-                  << " }";
-    }
 
   private:
     First first;

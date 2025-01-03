@@ -3,7 +3,7 @@
 #include "interface.fwd.hpp"
 
 #include <optional>
-#include <string>
+#include <vector>
 
 namespace rusty_iterators::iterator
 {
@@ -24,15 +24,6 @@ class CopyCycle : public IterInterface<T, CopyCycle<T, Other>>
     auto next() -> std::optional<T>;
     [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;
 
-    friend auto operator<<(auto& os, CopyCycle<T, Other> const& m) -> std::ostream&
-    {
-        auto size    = m.sizeHint();
-        auto sizeStr = size.has_value() ? std::to_string(size.value()) : "inf";
-
-        return os << "CopyCycle{ size=" << sizeStr << ", it=" << m.it << ", orig=" << m.original
-                  << " }";
-    }
-
   private:
     Other it;
     Other original;
@@ -46,14 +37,6 @@ class CacheCycle : public IterInterface<T, CacheCycle<T, Other>>
 
     auto next() -> std::optional<T>;
     [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;
-
-    friend auto operator<<(auto& os, CacheCycle<T, Other> const& m) -> std::ostream&
-    {
-        auto size    = m.sizeHint();
-        auto sizeStr = size.has_value() ? std::to_string(size.value()) : "inf";
-
-        return os << "CacheCycle{ size=" << sizeStr << ", it=" << m.it << " }";
-    }
 
   private:
     Other it;

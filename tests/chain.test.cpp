@@ -45,3 +45,13 @@ TEST(TestChainIterator, TestOneIteratorEmpty)
 
     ASSERT_EQ(it.next().value(), 4);
 }
+
+TEST(TestChainIterator, TestIteratorCount)
+{
+    auto v1 = std::vector{1, 2};
+    auto v2 = std::vector{3, 5, 6};
+
+    auto it = RustyIter{v1}.chain(RustyIter{v2});
+
+    ASSERT_EQ(it.count(), 5);
+}

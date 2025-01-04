@@ -70,3 +70,13 @@ TEST(TestZipIterator, TestDifferentTypesOfZippedIterators)
     ASSERT_EQ(std::get<0>(item), 1);
     ASSERT_EQ(std::get<1>(item).get(), "a");
 }
+
+TEST(TestZipIterator, TestAdvanceBy)
+{
+    auto v1 = std::vector{1, 2, 3};
+    auto v2 = std::vector{4, 5, 6};
+
+    auto it = RustyIter{v1}.zip(RustyIter{v2}).advanceBy(2);
+
+    EXPECT_THAT(it.next().value(), FieldsAre(3, 6));
+}

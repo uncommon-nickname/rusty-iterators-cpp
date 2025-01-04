@@ -213,7 +213,11 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::collect() -> std::ve
 template <class T, class Derived>
 auto rusty_iterators::interface::IterInterface<T, Derived>::count() -> size_t
 {
-    return fold(0, [](auto count, auto _) { return count + 1; });
+    size_t count = 0;
+
+    forEach([&count](auto&& _) { count += 1; });
+
+    return count;
 }
 
 template <class T, class Derived>

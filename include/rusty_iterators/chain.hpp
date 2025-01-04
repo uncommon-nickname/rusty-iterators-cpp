@@ -16,6 +16,7 @@ class Chain : public IterInterface<T, Chain<T, First, Second>>
         : first(std::forward<First>(f)), second(std::forward<Second>(s))
     {}
 
+    [[nodiscard]] auto count() -> size_t;
     auto next() -> std::optional<T>;
     [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;
 
@@ -25,6 +26,12 @@ class Chain : public IterInterface<T, Chain<T, First, Second>>
     bool useSecond = false;
 };
 } // namespace rusty_iterators::iterator
+
+template <class T, class First, class Second>
+auto rusty_iterators::iterator::Chain<T, First, Second>::count() -> size_t
+{
+    return first.count() + second.count();
+}
 
 template <class T, class First, class Second>
 auto rusty_iterators::iterator::Chain<T, First, Second>::next() -> std::optional<T>

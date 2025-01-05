@@ -1,10 +1,14 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <rusty_iterators/file_iterator.hpp>
 #include <rusty_iterators/iterator.hpp>
 
+using ::rusty_iterators::iterator::LazyFileIter;
 using ::rusty_iterators::iterator::RustyIter;
 using ::testing::ElementsAreArray;
+
+constexpr std::string testFileName = "./tests/test_data.txt";
 
 TEST(TestIteratorIntegration, TestFilterMap)
 {
@@ -114,4 +118,11 @@ TEST(TestIteratorIntegration, TestFindMaxDiffBetweenTwoPairsUsingZip)
                       .max();
 
     ASSERT_EQ(result.value(), 5);
+}
+
+TEST(TestIteratorIntegration, TestLoadFileDataAndParseIt)
+{
+    auto it = LazyFileIter{testFileName}.map([](auto x) { return std::atoi(x.c_str()); });
+
+    EXPECT_THAT(it.collect(), ElementsAreArray(std::array{1, 2, 3, 4}));
 }

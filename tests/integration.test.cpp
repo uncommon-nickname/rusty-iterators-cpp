@@ -8,8 +8,6 @@ using ::rusty_iterators::iterator::LazyFileIter;
 using ::rusty_iterators::iterator::RustyIter;
 using ::testing::ElementsAreArray;
 
-constexpr std::string testFileName = "./tests/test_data.txt";
-
 TEST(TestIteratorIntegration, TestFilterMap)
 {
     auto vec = std::vector{1, 2, 3, 4};
@@ -122,7 +120,8 @@ TEST(TestIteratorIntegration, TestFindMaxDiffBetweenTwoPairsUsingZip)
 
 TEST(TestIteratorIntegration, TestLoadFileDataAndParseIt)
 {
-    auto it = LazyFileIter{testFileName}.map([](auto x) { return std::atoi(x.c_str()); });
+    auto testFileName = std::string{"./tests/test_data.txt"};
+    auto it           = LazyFileIter{testFileName}.map([](auto x) { return std::atoi(x.c_str()); });
 
     EXPECT_THAT(it.collect(), ElementsAreArray(std::array{1, 2, 3, 4}));
 }

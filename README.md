@@ -105,6 +105,16 @@ auto result = RustyIter{v1}
                     .max();
 ```
 
+### Parse file containing numbers in lazy manner
+
+```c++
+auto fileName = std::string{"test.txt"};
+auto numbers = FileIterator<FIterType::Lazy>{fileName}
+                    .filter([](auto x) { return std::all_of(x.begin(), x.end(), std::isdigit); })
+                    .map([](auto x) { return std::atoi(x.c_str()); })
+                    .collect();
+```
+
 ## Benchmarks
 
 We provide a small set of benchmarks located in the `benchmarks/` directory. You can build them using provided build script.

@@ -4,7 +4,8 @@
 #include <rusty_iterators/file_iterator.hpp>
 #include <rusty_iterators/iterator.hpp>
 
-using ::rusty_iterators::iterator::LazyFileIter;
+using ::rusty_iterators::iterator::FileIterator;
+using ::rusty_iterators::iterator::FIterType;
 using ::rusty_iterators::iterator::RustyIter;
 using ::testing::ElementsAreArray;
 
@@ -121,7 +122,8 @@ TEST(TestIteratorIntegration, TestFindMaxDiffBetweenTwoPairsUsingZip)
 TEST(TestIteratorIntegration, TestLoadFileDataAndParseIt)
 {
     auto testFileName = std::string{"./tests/test_data.txt"};
-    auto it           = LazyFileIter{testFileName}.map([](auto x) { return std::atoi(x.c_str()); });
+    auto it           = FileIterator<FIterType::Lazy>{testFileName}.map(
+        [](auto x) { return std::atoi(x.c_str()); });
 
     EXPECT_THAT(it.collect(), ElementsAreArray(std::array{1, 2, 3, 4}));
 }

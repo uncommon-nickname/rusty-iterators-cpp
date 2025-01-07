@@ -28,8 +28,10 @@ class FileIterator<FIterType::Buffered>
     : public IterInterface<std::string, FileIterator<FIterType::Buffered>>
 {
   public:
-    explicit FileIterator(const std::string& filePath) : is(filePath)
+    explicit FileIterator(const std::string& filePath)
     {
+        std::ifstream is{filePath};
+
         if (!is.is_open())
         {
             throw std::runtime_error{"Could not open the file."};
@@ -62,7 +64,6 @@ class FileIterator<FIterType::Buffered>
 
   private:
     size_t ptr = 0;
-    std::ifstream is;
     std::vector<std::string> fileLines{};
 };
 

@@ -20,14 +20,14 @@ using concepts::Summable;
 
 template <class Container>
     requires std::ranges::range<Container>
-class RustyIter : public interface::IterInterface<Item<Container>, RustyIter<Container>>
+class LazyIterator : public interface::IterInterface<Item<Container>, LazyIterator<Container>>
 {
     using RawT     = typename Container::value_type;
     using T        = Item<Container>;
     using Iterator = typename Container::iterator;
 
   public:
-    explicit RustyIter(Container& it) : ptr(it.begin()), end(it.end()) {}
+    explicit LazyIterator(Container& it) : ptr(it.begin()), end(it.end()) {}
 
     auto next() -> std::optional<T>;
     [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;
@@ -44,7 +44,7 @@ class RustyIter : public interface::IterInterface<Item<Container>, RustyIter<Con
 
 template <class Container>
     requires std::ranges::range<Container>
-auto rusty_iterators::iterator::RustyIter<Container>::next() -> std::optional<T>
+auto rusty_iterators::iterator::LazyIterator<Container>::next() -> std::optional<T>
 {
     [[unlikely]] if (ptr == end)
     {
@@ -59,7 +59,7 @@ auto rusty_iterators::iterator::RustyIter<Container>::next() -> std::optional<T>
 
 template <class Container>
     requires std::ranges::range<Container>
-auto rusty_iterators::iterator::RustyIter<Container>::sizeHint() const -> std::optional<size_t>
+auto rusty_iterators::iterator::LazyIterator<Container>::sizeHint() const -> std::optional<size_t>
 {
     return std::make_optional(end - ptr);
 }
@@ -68,7 +68,7 @@ template <class Container>
     requires std::ranges::range<Container>
 template <class R>
     requires rusty_iterators::concepts::Summable<R>
-auto rusty_iterators::iterator::RustyIter<Container>::sum() -> R
+auto rusty_iterators::iterator::LazyIterator<Container>::sum() -> R
 {
     return this->fold(RawT{}, [](auto acc, auto x) { return acc + x; });
 }

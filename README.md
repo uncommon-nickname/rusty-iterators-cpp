@@ -41,7 +41,7 @@ Some simple examples of usage.
 
 ```c++
 auto data = std::vector{1, 2, 3, 4, 5, 6};
-auto result = RustyIter{data}
+auto result = LazyIterator{data}
                 .filter([](auto x) { return x % 2 == 0; })
                 .count();
 ```
@@ -50,7 +50,7 @@ auto result = RustyIter{data}
 
 ```c++
 auto data = std::vector{1, 2, 3};
-auto result = RustyIter{data}.cycle().take(10).collect();
+auto result = LazyIterator{data}.cycle().take(10).collect();
 ```
 
 ### Run a callable on every element of the iterator
@@ -59,14 +59,14 @@ auto result = RustyIter{data}.cycle().take(10).collect();
 auto data = std::vector{1, 2, 3, 4};
 auto f = [](auto x){ ... } // Do some business logic.
 
-RustyIter{data}.forEach(std::move(f));
+LazyIterator{data}.forEach(std::move(f));
 ```
 
 ### Find the length of the shortest string in the iterator
 
 ```c++
 auto data = std::vector<std::string>{"a", "abc", "defg"};
-auto result = RustyIter{data}
+auto result = LazyIterator{data}
                 .map([](auto x) { return x.get().size(); })
                 .min();
 ```
@@ -75,7 +75,7 @@ auto result = RustyIter{data}
 
 ```c++
 auto data = std::vector{1, 2, 3, 4};
-auto result = RustyIter{data}
+auto result = LazyIterator{data}
                 .filter([](auto x) { return x % 2 != 0; })
                 .map([](auto x) { return x * x; })
                 .collect();
@@ -87,8 +87,8 @@ auto result = RustyIter{data}
 auto v1 = std::vector{1, 2, 3};
 auto v2 = std::vector{4, 5, 6};
 
-auto result = RustyIter{v1}
-                .chain(RustyIter{v2}
+auto result = LazyIterator{v1}
+                .chain(LazyIterator{v2}
                 .map([](auto x) { return x * 2; }))
                 .collect();
 ```
@@ -99,8 +99,8 @@ auto result = RustyIter{v1}
 auto v1 = std::vector{1, 2, 3, 4, 5};
 auto v2 = std::vector{2, 7, 4, 8, 1};
 
-auto result = RustyIter{v1}
-                    .zip(RustyIter{v2})
+auto result = LazyIterator{v1}
+                    .zip(LazyIterator{v2})
                     .map([](auto x) { return std::abs(std::get<0>(x) - std::get<1>(x)); })
                     .max();
 ```

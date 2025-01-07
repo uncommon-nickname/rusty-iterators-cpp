@@ -5,7 +5,7 @@
 #include <ranges>
 
 using ::rusty_iterators::iterator::CycleType;
-using ::rusty_iterators::iterator::RustyIter;
+using ::rusty_iterators::iterator::LazyIterator;
 
 constexpr size_t test_elements_amount = 10'000'000;
 
@@ -23,7 +23,7 @@ auto benchmarkRustyIterFilterMap(benchmark::State& state) -> void
 
     for (auto _ : state)
     {
-        auto result = RustyIter{data}
+        auto result = LazyIterator{data}
                           .filter([](auto x) { return x % 2 == 0; })
                           .map([](auto x) { return x * 2; })
                           .collect();
@@ -42,28 +42,29 @@ auto benchmarkRangesFilterTransform(benchmark::State& state) -> void
     }
 }
 
-auto benchmarkCopyCycle(benchmark::State& state) -> void
-{
-    auto data = std::vector{1, 2, 3};
-
-    for (auto _ : state)
-    {
-        auto result = RustyIter{data}.cycle<CycleType::Copy>().take(test_elements_amount).collect();
-    }
-}
-
-auto benchmarkCacheCycle(benchmark::State& state) -> void
+auto benchmarkRustyIterCopyCycle(benchmark::State& state) -> void
 {
     auto data = std::vector{1, 2, 3};
 
     for (auto _ : state)
     {
         auto result =
-            RustyIter{data}.cycle<CycleType::Cache>().take(test_elements_amount).collect();
+            LazyIterator{data}.cycle<CycleType::Copy>().take(test_elements_amount).collect();
+    }
+}
+
+auto benchmarkRustyIterCacheCycle(benchmark::State& state) -> void
+{
+    auto data = std::vector{1, 2, 3};
+
+    for (auto _ : state)
+    {
+        auto result =
+            LazyIterator{data}.cycle<CycleType::Cache>().take(test_elements_amount).collect();
     }
 }
 
 BENCHMARK(benchmarkRustyIterFilterMap);
 BENCHMARK(benchmarkRangesFilterTransform);
-BENCHMARK(benchmarkCopyCycle);
-BENCHMARK(benchmarkCacheCycle);
+BENCHMARK(benchmarkRustyIterCopyCycle);
+BENCHMARK(benchmarkRustyIterCacheCycle);

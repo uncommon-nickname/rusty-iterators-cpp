@@ -17,6 +17,12 @@ concept Comparable = requires(T first, T second) {
     { first > second } -> std::same_as<bool>;
     { first < second } -> std::same_as<bool>;
 };
+
+template <class T, class Functor>
+concept EqFunctor = requires(Functor f, std::tuple<T, T> t) {
+    { f(t) } -> std::same_as<bool>;
+};
+
 template <class T, class Functor>
 concept FilterFunctor = AllFunctor<T, Functor>;
 
@@ -37,10 +43,10 @@ concept Indexable = requires(T t) {
 };
 
 template <class T, class Functor>
-concept PositionFunctor = AllFunctor<T, Functor>;
+concept InspectFunctor = ForEachFunctor<T, Functor>;
 
 template <class T, class Functor>
-concept InspectFunctor = ForEachFunctor<T, Functor>;
+concept PositionFunctor = AllFunctor<T, Functor>;
 
 template <class T>
 concept Summable = requires(T first, T second) {

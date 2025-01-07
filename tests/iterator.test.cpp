@@ -289,3 +289,32 @@ TEST(TestIterator, TestPositionNoValueMatched)
 
     ASSERT_EQ(result, std::nullopt);
 }
+
+TEST(TestIterator, TestEqWhenSame)
+{
+    auto v1 = std::vector{1, 2, 3};
+    auto v2 = std::vector{1, 2, 3};
+
+    ASSERT_TRUE(LazyIterator{v1}.eq(LazyIterator{v2}));
+}
+
+TEST(TestIterator, TestEqWhenDifferent)
+{
+    auto v1 = std::vector{1, 2, 3};
+    auto v2 = std::vector{1, 2, 4};
+
+    ASSERT_FALSE(LazyIterator{v1}.eq(LazyIterator{v2}));
+}
+
+TEST(TestIterator, TestEqBy)
+{
+    auto v1 = std::vector<std::string>{"a", "bc", "dea"};
+    auto v2 = std::vector<std::string>{"j", "hg", "dfg"};
+
+    // Compare the vectors not by exact content, but by length of strings.
+    auto result = LazyIterator{v1}.eqBy(LazyIterator{v2}, [](auto x) {
+        return std::get<0>(x).get().size() == std::get<1>(x).get().size();
+    });
+
+    ASSERT_TRUE(result);
+}

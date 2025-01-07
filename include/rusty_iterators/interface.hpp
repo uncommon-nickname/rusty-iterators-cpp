@@ -18,6 +18,7 @@ namespace rusty_iterators::interface
 using concepts::AllFunctor;
 using concepts::AnyFunctor;
 using concepts::Comparable;
+using concepts::EqFunctor;
 using concepts::FilterFunctor;
 using concepts::FoldFunctor;
 using concepts::ForEachFunctor;
@@ -75,6 +76,13 @@ class IterInterface
 
     template <class Second>
     [[nodiscard]] auto chain(Second&& it) -> Chain<T, Derived, Second>;
+
+    template <class Other>
+    [[nodiscard]] auto eq(Other&& it) -> bool;
+
+    template <class Other, class Functor>
+        requires EqFunctor<T, Functor>
+    [[nodiscard]] auto eqBy(Other&& it, Functor&& f) -> bool;
 
     template <class Functor>
         requires FilterFunctor<T, Functor>
@@ -245,6 +253,22 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::chain(Second&& it)
 }
 
 template <class T, class Derived>
+template <class Other>
+auto rusty_iterators::interface::IterInterface<T, Derived>::eq(Other&& it) -> bool
+{
+    return self().eqBy(std::forward<Other>(it),
+                       [](auto x) { return std::get<0>(x) == std::get<1>(x); });
+}
+
+template <class T, class Derived>
+template <class Other, class Functor>
+    requires rusty_iterators::concepts::EqFunctor<T, Functor>
+auto rusty_iterators::interface::IterInterface<T, Derived>::eqBy(Other&& it, Functor&& f) -> bool
+{
+    return self().zip(std::forward<Other>(it)).all(std::forward<Functor>(f));
+}
+
+template <class T, class Derived>
 template <class Functor>
     requires rusty_iterators::iterator::FilterFunctor<T, Functor>
 auto rusty_iterators::interface::IterInterface<T, Derived>::filter(Functor&& f)
@@ -312,7 +336,7 @@ template <class R>
     requires rusty_iterators::concepts::Comparable<R>
 auto rusty_iterators::interface::IterInterface<T, Derived>::max() -> std::optional<R>
 {
-    return reduce([](auto x, auto y) { return std::max(x, y); });
+    return self().reduce([](auto x, auto y) { return std::max(x, y); });
 }
 
 template <class T, class Derived>
@@ -320,7 +344,7 @@ template <class R>
     requires rusty_iterators::concepts::Comparable<R>
 auto rusty_iterators::interface::IterInterface<T, Derived>::min() -> std::optional<R>
 {
-    return reduce([](auto x, auto y) { return std::min(x, y); });
+    return self().reduce([](auto x, auto y) { return std::min(x, y); });
 }
 
 template <class T, class Derived>
@@ -333,7 +357,7 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::movingWindow(size_t 
 template <class T, class Derived>
 auto rusty_iterators::interface::IterInterface<T, Derived>::nth(size_t element) -> std::optional<T>
 {
-    return advanceBy(element).next();
+    return self().advanceBy(element).next();
 }
 
 template <class T, class Derived>
@@ -379,7 +403,7 @@ template <class R>
     requires rusty_iterators::concepts::Summable<R>
 auto rusty_iterators::interface::IterInterface<T, Derived>::sum() -> R
 {
-    return fold(R{}, [](auto acc, auto x) { return acc + x; });
+    return self().fold(R{}, [](auto acc, auto x) { return acc + x; });
 }
 
 template <class T, class Derived>

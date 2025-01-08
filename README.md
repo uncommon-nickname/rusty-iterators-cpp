@@ -129,12 +129,23 @@ All of the benchmarks measure the performance in release mode and run similar sc
 
 All of the measurements were taken on MacBook M3 Pro 18GB.
 
-#### Apply filter and map on 10 000 000 ints
+#### Filter and map
+
+Apply filter and map on 1'000'000 integers
 
 |          **Benchmark**         | **Time [ns]** | **CPU [ns]** |
 |:------------------------------:|:-------------:|:------------:|
-|   benchmarkRustyIterFilterMap  |    5565001    |    5564975   |
-| benchmarkRangesFilterTransform |    5837398    |    5837397   |
+| benchmarkRustyIterFilterAndMap |     559108    |    559065    |
+|   benchmarkRustyIterFilterMap  |     556122    |    556120    |
+| benchmarkRangesFilterTransform |     539868    |    539786    |
+
+Apply filter and map on 10'000'000 integers
+
+|          **Benchmark**         | **Time [ns]** | **CPU [ns]** |
+|:------------------------------:|:-------------:|:------------:|
+| benchmarkRustyIterFilterAndMap |    5644164    |    5643854   |
+|   benchmarkRustyIterFilterMap  |    5599177    |    5599185   |
+| benchmarkRangesFilterTransform |    5988982    |    5988701   |
 
 ## Authors
 

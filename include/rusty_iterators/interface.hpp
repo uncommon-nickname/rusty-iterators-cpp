@@ -4,6 +4,7 @@
 #include "concepts.hpp"
 #include "cycle.hpp"
 #include "filter.hpp"
+#include "filter_map.hpp"
 #include "inspect.hpp"
 #include "map.hpp"
 #include "moving_window.hpp"
@@ -11,6 +12,7 @@
 #include "zip.hpp"
 
 #include <stdexcept>
+#include <type_traits>
 #include <vector>
 
 namespace rusty_iterators::interface
@@ -20,6 +22,7 @@ using concepts::AnyFunctor;
 using concepts::Comparable;
 using concepts::EqFunctor;
 using concepts::FilterFunctor;
+using concepts::FilterMapFunctor;
 using concepts::FoldFunctor;
 using concepts::ForEachFunctor;
 using concepts::Indexable;
@@ -33,6 +36,7 @@ using iterator::Chain;
 using iterator::CopyCycle;
 using iterator::CycleType;
 using iterator::Filter;
+using iterator::FilterMap;
 using iterator::Inspect;
 using iterator::Map;
 using iterator::MovingWindow;
@@ -87,6 +91,11 @@ class IterInterface
     template <class Functor>
         requires FilterFunctor<T, Functor>
     [[nodiscard]] auto filter(Functor&& f) -> Filter<T, Functor, Derived>;
+
+    template <class Functor>
+        requires FilterMapFunctor<T, typename std::invoke_result_t<Functor, T>::value_type, Functor>
+    [[nodiscard]] auto filterMap(Functor&& f)
+        -> FilterMap<T, typename std::invoke_result_t<Functor, T>::value_type, Functor, Derived>;
 
     template <class B, class Functor>
         requires FoldFunctor<B, T, Functor>
@@ -275,6 +284,17 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::filter(Functor&& f)
     -> Filter<T, Functor, Derived>
 {
     return Filter<T, Functor, Derived>{std::forward<Derived>(self()), std::forward<Functor>(f)};
+}
+
+template <class T, class Derived>
+template <class Functor>
+    requires rusty_iterators::concepts::FilterMapFunctor<
+        T, typename std::invoke_result_t<Functor, T>::value_type, Functor>
+auto rusty_iterators::interface::IterInterface<T, Derived>::filterMap(Functor&& f)
+    -> FilterMap<T, typename std::invoke_result_t<Functor, T>::value_type, Functor, Derived>
+{
+    return FilterMap<T, typename std::invoke_result_t<Functor, T>::value_type, Functor, Derived>{
+        std::forward<Derived>(self()), std::forward<Functor>(f)};
 }
 
 template <class T, class Derived>

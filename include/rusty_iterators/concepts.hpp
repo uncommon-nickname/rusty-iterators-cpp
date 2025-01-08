@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <tuple>
 
 namespace rusty_iterators::concepts
@@ -25,6 +26,11 @@ concept EqFunctor = requires(Functor f, std::tuple<T, T> t) {
 
 template <class T, class Functor>
 concept FilterFunctor = AllFunctor<T, Functor>;
+
+template <class Tin, class Tout, class Functor>
+concept FilterMapFunctor = requires(Functor f, Tin t) {
+    { f(t) } -> std::same_as<std::optional<Tout>>;
+};
 
 template <class B, class T, class Functor>
 concept FoldFunctor = requires(Functor f, B first, T second) {

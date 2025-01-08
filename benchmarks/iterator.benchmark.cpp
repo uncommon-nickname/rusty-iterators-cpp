@@ -17,7 +17,7 @@ auto initializeIncrementalVector() -> std::vector<int>
     return std::move(data);
 }
 
-auto benchmarkRustyIterFilterMap(benchmark::State& state) -> void
+auto benchmarkRustyIterFilterAndMap(benchmark::State& state) -> void
 {
     auto data = initializeIncrementalVector();
 
@@ -27,6 +27,21 @@ auto benchmarkRustyIterFilterMap(benchmark::State& state) -> void
                           .filter([](auto x) { return x % 2 == 0; })
                           .map([](auto x) { return x * 2; })
                           .collect();
+    }
+}
+
+auto benchmarkRustyIterFilterMap(benchmark::State& state) -> void
+{
+    auto data = initializeIncrementalVector();
+
+    for (auto _ : state)
+    {
+        auto f = [](int x) -> std::optional<int> {
+            if (x % 2 == 0)
+                return std::make_optional(x * 2);
+            return std::nullopt;
+        };
+        auto result = LazyIterator{data}.filterMap(std::move(f)).collect();
     }
 }
 
@@ -64,6 +79,7 @@ auto benchmarkRustyIterCacheCycle(benchmark::State& state) -> void
     }
 }
 
+BENCHMARK(benchmarkRustyIterFilterAndMap);
 BENCHMARK(benchmarkRustyIterFilterMap);
 BENCHMARK(benchmarkRangesFilterTransform);
 BENCHMARK(benchmarkRustyIterCopyCycle);

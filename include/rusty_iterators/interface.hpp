@@ -27,6 +27,7 @@ using concepts::FoldFunctor;
 using concepts::ForEachFunctor;
 using concepts::Indexable;
 using concepts::InspectFunctor;
+using concepts::NeFunctor;
 using concepts::PositionFunctor;
 using concepts::Summable;
 using concepts::TryFoldFunctor;
@@ -123,6 +124,14 @@ class IterInterface
     [[nodiscard]] auto min() -> std::optional<R>;
 
     [[nodiscard]] auto movingWindow(size_t size) -> MovingWindow<T, Derived>;
+
+    template <class Other>
+    [[nodiscard]] auto ne(Other&& it) -> bool;
+
+    template <class Other, class Functor>
+        requires NeFunctor<T, Functor>
+    [[nodiscard]] auto neBy(Other&& it, Functor&& f) -> bool;
+
     [[nodiscard]] auto nth(size_t element) -> std::optional<T>;
 
     template <class Functor>
@@ -353,6 +362,22 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::movingWindow(size_t 
     -> MovingWindow<T, Derived>
 {
     return MovingWindow<T, Derived>{std::forward<Derived>(self()), size};
+}
+
+template <class T, class Derived>
+template <class Other>
+auto rusty_iterators::interface::IterInterface<T, Derived>::ne(Other&& it) -> bool
+{
+    return self().neBy(std::forward<Other>(it),
+                       [](auto x) { return std::get<0>(x) != std::get<1>(x); });
+}
+
+template <class T, class Derived>
+template <class Other, class Functor>
+    requires rusty_iterators::concepts::NeFunctor<T, Functor>
+auto rusty_iterators::interface::IterInterface<T, Derived>::neBy(Other&& it, Functor&& f) -> bool
+{
+    return self().zip(std::forward<Other>(it)).any(std::forward<Functor>(f));
 }
 
 template <class T, class Derived>

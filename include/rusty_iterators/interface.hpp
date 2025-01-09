@@ -111,7 +111,7 @@ class IterInterface
     auto inspect(Functor&& f) -> Inspect<T, Functor, Derived>;
 
     template <class Functor>
-        requires std::invocable<Functor, T>
+        requires std::invocable<Functor, T&&>
     [[nodiscard]] auto map(Functor&& f) -> Map<T, Functor, Derived>;
 
     template <class R = T>
@@ -178,7 +178,7 @@ template <class Functor>
     requires rusty_iterators::concepts::AnyFunctor<T, Functor>
 auto rusty_iterators::interface::IterInterface<T, Derived>::any(Functor&& f) -> bool // NOLINT
 {
-    auto anyf = [f = std::forward<Functor>(f)](bool acc, T x) {
+    auto anyf = [f = std::forward<Functor>(f)](auto acc, auto x) {
         return f(x) ? std::expected<bool, bool>{true} : std::unexpected{false};
     };
     return self().tryFold(false, std::move(anyf));
@@ -189,7 +189,7 @@ template <class Functor>
     requires rusty_iterators::concepts::AllFunctor<T, Functor>
 auto rusty_iterators::interface::IterInterface<T, Derived>::all(Functor&& f) -> bool // NOLINT
 {
-    auto allf = [f = std::forward<Functor>(f)](bool acc, T x) {
+    auto allf = [f = std::forward<Functor>(f)](auto acc, auto x) {
         return !f(x) ? std::expected<bool, bool>{false} : std::unexpected{true};
     };
     return self().tryFold(true, std::move(allf));
@@ -325,7 +325,7 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::inspect(Functor&& f)
 
 template <class T, class Derived>
 template <class Functor>
-    requires std::invocable<Functor, T>
+    requires std::invocable<Functor, T&&>
 auto rusty_iterators::interface::IterInterface<T, Derived>::map(Functor&& f)
     -> Map<T, Functor, Derived>
 {
@@ -377,7 +377,7 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::position(Functor&& f
     {
         if (func(nextItem.value()))
         {
-            return std::make_optional(position);
+            return position;
         }
         position += 1;
         nextItem = self().next();
@@ -396,7 +396,7 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::reduce(Functor&& f) 
     {
         return std::nullopt;
     }
-    return std::make_optional(fold(std::move(first.value()), std::forward<Functor>(f)));
+    return fold(std::move(first.value()), std::forward<Functor>(f));
 }
 
 template <class T, class Derived>
@@ -430,7 +430,7 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::tryFold(B&& init, Fu
 
         if (potentialAccum.has_value())
         {
-            return potentialAccum.value();
+            return std::move(potentialAccum.value());
         }
         accum    = potentialAccum.error();
         nextItem = self().next();
@@ -462,7 +462,7 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::unzip()
         second.push_back(std::move(s));
         nextItem = self().next();
     }
-    return std::move(std::tuple{std::move(first), std::move(second)});
+    return std::tuple{std::move(first), std::move(second)};
 }
 
 template <class T, class Derived>
@@ -488,8 +488,7 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::unzip()
         second.push_back(std::move(value.at(1)));
         nextItem = self().next();
     }
-
-    return std::move(std::tuple{std::move(first), std::move(second)});
+    return std::tuple{std::move(first), std::move(second)};
 }
 
 template <class T, class Derived>

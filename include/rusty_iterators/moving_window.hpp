@@ -53,7 +53,7 @@ auto rusty_iterators::iterator::MovingWindow<T, Other>::next() -> std::optional<
     orig.next();
     it = orig;
 
-    return std::make_optional(std::move(result));
+    return std::move(result);
 }
 
 template <class T, class Other>
@@ -67,5 +67,5 @@ auto rusty_iterators::iterator::MovingWindow<T, Other>::sizeHint() const -> std:
     {
         return std::nullopt;
     }
-    return size.value() == 0 ? size : std::make_optional(size.value() - 1);
+    return size.value() == 0 ? size : size.value() - 1;
 }

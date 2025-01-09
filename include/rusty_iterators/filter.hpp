@@ -37,7 +37,7 @@ auto rusty_iterators::iterator::Filter<T, Functor, Other>::next() -> std::option
     {
         if (func(nextItem.value()))
         {
-            return nextItem;
+            return std::move(nextItem);
         }
         nextItem = it.next();
     }

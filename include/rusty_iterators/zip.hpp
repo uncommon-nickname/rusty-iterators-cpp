@@ -53,7 +53,7 @@ auto rusty_iterators::iterator::Zip<T, R, First, Second>::next() -> std::optiona
     {
         return std::nullopt;
     }
-    return std::make_optional(std::tuple<T, R>{firstItem.value(), secondItem.value()});
+    return std::tuple<T, R>{firstItem.value(), secondItem.value()};
 }
 
 template <class T, class R, class First, class Second>
@@ -66,7 +66,7 @@ auto rusty_iterators::iterator::Zip<T, R, First, Second>::sizeHint() const -> st
     {
         if (secondSize.has_value())
         {
-            return std::make_optional(std::min(firstSize.value(), secondSize.value()));
+            return std::min(firstSize.value(), secondSize.value());
         }
         return firstSize;
     }

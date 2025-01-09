@@ -54,9 +54,9 @@ auto rusty_iterators::iterator::CopyCycle<T, Other>::next() -> std::optional<T>
     if (!item.has_value())
     {
         it = original;
-        return it.next();
+        return std::move(it.next());
     }
-    return item;
+    return std::move(item);
 }
 
 template <class T, class Other>
@@ -80,7 +80,7 @@ auto rusty_iterators::iterator::CacheCycle<T, Other>::next() -> std::optional<T>
         ptr %= cache.size();
         auto nextItem = cache.at(ptr);
         ptr += 1;
-        return std::make_optional(nextItem);
+        return std::move(nextItem);
     }
 
     auto nextItem = this->it.next();

@@ -54,13 +54,10 @@ class FileIterator<FIterType::Buffered>
         }
         auto line = fileLines.at(ptr);
         ptr += 1;
-        return std::make_optional(std::move(line));
+        return std::move(line);
     }
 
-    [[nodiscard]] auto sizeHint() const -> std::optional<size_t>
-    {
-        return std::make_optional(fileLines.size());
-    }
+    [[nodiscard]] auto sizeHint() const -> std::optional<size_t> { return fileLines.size(); }
 
   private:
     size_t ptr = 0;
@@ -88,13 +85,13 @@ class FileIterator<FIterType::Lazy>
         {
             return std::nullopt;
         }
-        return std::make_optional(std::move(nextLine));
+        return std::move(nextLine);
     }
 
     [[nodiscard]] auto sizeHint() const -> std::optional<size_t>
     {
         // We don't know how many lines the file has. No optimizations here.
-        return std::make_optional(0);
+        return 0;
     }
 
   private:

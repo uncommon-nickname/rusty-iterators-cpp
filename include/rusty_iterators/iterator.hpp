@@ -54,14 +54,14 @@ auto rusty_iterators::iterator::LazyIterator<Container>::next() -> std::optional
     auto& item = *ptr;
     ptr += 1;
 
-    return std::make_optional(std::cref(item));
+    return std::cref(item);
 }
 
 template <class Container>
     requires std::ranges::range<Container>
 auto rusty_iterators::iterator::LazyIterator<Container>::sizeHint() const -> std::optional<size_t>
 {
-    return std::make_optional(end - ptr);
+    return end - ptr;
 }
 
 template <class Container>

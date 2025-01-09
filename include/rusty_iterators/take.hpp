@@ -48,7 +48,6 @@ auto rusty_iterators::iterator::Take<T, Other>::next() -> std::optional<T>
     }
 
     taken += 1;
-
     return std::move(nextItem);
 }
 
@@ -60,8 +59,7 @@ auto rusty_iterators::iterator::Take<T, Other>::sizeHint() const -> std::optiona
 
     if (!itSize.has_value())
     {
-        return std::make_optional(currSize);
+        return currSize;
     }
-
-    return std::make_optional(std::min(currSize, itSize.value()));
+    return std::min(currSize, itSize.value());
 }

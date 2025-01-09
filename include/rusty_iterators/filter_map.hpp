@@ -36,11 +36,11 @@ auto rusty_iterators::iterator::FilterMap<Tin, Tout, Functor, Other>::next() -> 
 
     while (nextItem.has_value())
     {
-        auto result = func(nextItem.value());
+        auto result = func(std::move(nextItem.value()));
 
         if (result.has_value())
         {
-            return std::make_optional(std::move(result.value()));
+            return std::move(result.value());
         }
         nextItem = it.next();
     }

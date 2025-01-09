@@ -10,7 +10,7 @@ namespace rusty_iterators::iterator
 using interface::IterInterface;
 
 template <class Tin, class Functor, class Other>
-    requires std::invocable<Functor, Tin>
+    requires std::invocable<Functor, Tin&&>
 class Map : public IterInterface<std::invoke_result_t<Functor, Tin>, Map<Tin, Functor, Other>>
 {
     using Tout = std::invoke_result_t<Functor, Tin>;
@@ -30,7 +30,7 @@ class Map : public IterInterface<std::invoke_result_t<Functor, Tin>, Map<Tin, Fu
 } // namespace rusty_iterators::iterator
 
 template <class Tin, class Functor, class Other>
-    requires std::invocable<Functor, Tin>
+    requires std::invocable<Functor, Tin&&>
 auto rusty_iterators::iterator::Map<Tin, Functor, Other>::count() -> size_t
 {
     // We do not have to apply the mapping callable just to count elements.
@@ -38,20 +38,20 @@ auto rusty_iterators::iterator::Map<Tin, Functor, Other>::count() -> size_t
 }
 
 template <class Tin, class Functor, class Other>
-    requires std::invocable<Functor, Tin>
+    requires std::invocable<Functor, Tin&&>
 auto rusty_iterators::iterator::Map<Tin, Functor, Other>::next() -> std::optional<Tout>
 {
     auto item = it.next();
 
     [[likely]] if (item.has_value())
     {
-        return std::make_optional(func(item.value()));
+        return func(std::move(item.value()));
     }
     return std::nullopt;
 }
 
 template <class Tin, class Functor, class Other>
-    requires std::invocable<Functor, Tin>
+    requires std::invocable<Functor, Tin&&>
 auto rusty_iterators::iterator::Map<Tin, Functor, Other>::sizeHint() const -> std::optional<size_t>
 {
     // Map does not change the size of the underlying iterator.

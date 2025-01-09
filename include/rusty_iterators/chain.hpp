@@ -53,8 +53,7 @@ auto rusty_iterators::iterator::Chain<T, First, Second>::next() -> std::optional
 template <class T, class First, class Second>
 auto rusty_iterators::iterator::Chain<T, First, Second>::sizeHint() const -> std::optional<size_t>
 {
-    // If one of the iterators is infinite, the full size is also
-    // infinite.
+    // If one of the iterators is infinite, the full size is also infinite.
     auto sizeFirst  = first.sizeHint();
     auto sizeSecond = second.sizeHint();
 
@@ -62,5 +61,5 @@ auto rusty_iterators::iterator::Chain<T, First, Second>::sizeHint() const -> std
     {
         return std::nullopt;
     }
-    return std::make_optional(sizeFirst.value() + sizeSecond.value());
+    return sizeFirst.value() + sizeSecond.value();
 }

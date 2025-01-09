@@ -178,10 +178,8 @@ template <class Functor>
     requires rusty_iterators::concepts::AnyFunctor<T, Functor>
 auto rusty_iterators::interface::IterInterface<T, Derived>::any(Functor&& f) -> bool // NOLINT
 {
-    auto anyf = [f = std::forward<Functor>(f)](bool acc, T x) -> std::expected<bool, bool> {
-        if (f(x))
-            return std::unexpected{true};
-        return acc;
+    auto anyf = [f = std::forward<Functor>(f)](bool acc, T x) {
+        return f(x) ? std::expected<bool, bool>{true} : std::unexpected{false};
     };
     return self().tryFold(false, std::move(anyf));
 }
@@ -191,10 +189,8 @@ template <class Functor>
     requires rusty_iterators::concepts::AllFunctor<T, Functor>
 auto rusty_iterators::interface::IterInterface<T, Derived>::all(Functor&& f) -> bool // NOLINT
 {
-    auto allf = [f = std::forward<Functor>(f)](bool acc, T x) -> std::expected<bool, bool> {
-        if (!f(x))
-            return std::unexpected{false};
-        return acc;
+    auto allf = [f = std::forward<Functor>(f)](bool acc, T x) {
+        return !f(x) ? std::expected<bool, bool>{false} : std::unexpected{true};
     };
     return self().tryFold(true, std::move(allf));
 }
@@ -431,11 +427,12 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::tryFold(B&& init, Fu
     [[likely]] while (nextItem.has_value())
     {
         auto potentialAccum = func(std::move(accum), std::move(nextItem.value()));
-        if (!potentialAccum.has_value())
+
+        if (potentialAccum.has_value())
         {
-            return potentialAccum.error();
+            return potentialAccum.value();
         }
-        accum    = potentialAccum.value();
+        accum    = potentialAccum.error();
         nextItem = self().next();
     }
     return std::move(accum);

@@ -318,3 +318,14 @@ TEST(TestIterator, TestEqBy)
 
     ASSERT_TRUE(result);
 }
+
+TEST(TestIterator, TestTryFoldEarlyExit)
+{
+    auto vec = std::vector{1, 2, 3, 4, 5};
+    auto f   = [](auto acc, auto x) {
+        return acc > 5 ? std::expected<int, int>{acc} : std::unexpected{x + acc};
+    };
+    auto result = LazyIterator{vec}.tryFold(0, std::move(f));
+
+    ASSERT_EQ(result, 6);
+}

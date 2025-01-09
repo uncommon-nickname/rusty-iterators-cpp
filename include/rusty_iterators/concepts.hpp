@@ -26,6 +26,9 @@ concept EqFunctor = requires(Functor f, std::tuple<T, T> t) {
 };
 
 template <class T, class Functor>
+concept NeFunctor = EqFunctor<T, Functor>;
+
+template <class T, class Functor>
 concept FilterFunctor = AllFunctor<T&, Functor>;
 
 template <class Tin, class Tout, class Functor>

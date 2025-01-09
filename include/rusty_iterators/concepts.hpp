@@ -1,5 +1,6 @@
 #pragma once
 
+#include <expected>
 #include <optional>
 #include <tuple>
 
@@ -57,6 +58,11 @@ concept PositionFunctor = AllFunctor<T, Functor>;
 template <class T>
 concept Summable = requires(T first, T second) {
     { first + second } -> std::same_as<T>;
+};
+
+template <class B, class T, class Functor>
+concept TryFoldFunctor = requires(Functor f, B first, T&& second) {
+    { f(first, second) } -> std::same_as<std::expected<B, B>>;
 };
 
 template <class T>

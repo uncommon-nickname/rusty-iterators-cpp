@@ -29,6 +29,7 @@ using concepts::Indexable;
 using concepts::InspectFunctor;
 using concepts::PositionFunctor;
 using concepts::Summable;
+using concepts::TryFoldFunctor;
 using concepts::TupleLike;
 
 using iterator::CacheCycle;
@@ -138,6 +139,10 @@ class IterInterface
 
     [[nodiscard]] auto take(size_t amount) -> Take<T, Derived>;
 
+    template <class B, class Functor>
+        requires TryFoldFunctor<B, T, Functor>
+    [[nodiscard]] auto tryFold(B&& init, Functor&& f) -> B;
+
     template <class R = T>
         requires TupleLike<R>
     [[nodiscard]] auto unzip() -> std::tuple<std::vector<typename std::tuple_element<0, R>::type>,
@@ -163,9 +168,7 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::advanceBy(size_t amo
     for (size_t i = 0; i < amount; i++)
     {
         [[unlikely]] if (!self().next().has_value())
-        {
             break;
-        }
     }
     return std::move(self());
 }
@@ -173,45 +176,23 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::advanceBy(size_t amo
 template <class T, class Derived>
 template <class Functor>
     requires rusty_iterators::concepts::AnyFunctor<T, Functor>
-auto rusty_iterators::interface::IterInterface<T, Derived>::any(Functor&& f) -> bool
+auto rusty_iterators::interface::IterInterface<T, Derived>::any(Functor&& f) -> bool // NOLINT
 {
-    // TODO: move this to use `tryFold` when implemented.
-    sizeHintChecked();
-
-    auto func     = std::forward<Functor>(f);
-    auto nextItem = self().next();
-
-    [[likely]] while (nextItem.has_value())
-    {
-        if (func(nextItem.value()))
-        {
-            return true;
-        }
-        nextItem = self().next();
-    }
-    return false;
+    auto anyf = [f = std::forward<Functor>(f)](bool acc, T x) {
+        return f(x) ? std::expected<bool, bool>{true} : std::unexpected{false};
+    };
+    return self().tryFold(false, std::move(anyf));
 }
 
 template <class T, class Derived>
 template <class Functor>
     requires rusty_iterators::concepts::AllFunctor<T, Functor>
-auto rusty_iterators::interface::IterInterface<T, Derived>::all(Functor&& f) -> bool
+auto rusty_iterators::interface::IterInterface<T, Derived>::all(Functor&& f) -> bool // NOLINT
 {
-    // TODO: move this to use `tryFold` when implemented.
-    sizeHintChecked();
-
-    auto func     = std::forward<Functor>(f);
-    auto nextItem = self().next();
-
-    [[likely]] while (nextItem.has_value())
-    {
-        if (!func(nextItem.value()))
-        {
-            return false;
-        }
-        nextItem = self().next();
-    }
-    return true;
+    auto allf = [f = std::forward<Functor>(f)](bool acc, T x) {
+        return !f(x) ? std::expected<bool, bool>{false} : std::unexpected{true};
+    };
+    return self().tryFold(true, std::move(allf));
 }
 
 template <class T, class Derived>
@@ -383,10 +364,9 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::nth(size_t element) 
 template <class T, class Derived>
 template <class Functor>
     requires rusty_iterators::concepts::PositionFunctor<T, Functor>
-auto rusty_iterators::interface::IterInterface<T, Derived>::position(Functor&& f)
+auto rusty_iterators::interface::IterInterface<T, Derived>::position(Functor&& f) // NOLINT
     -> std::optional<size_t>
 {
-    // TODO: Move this to use `tryFold` when implemented.
     sizeHintChecked();
 
     auto func       = std::forward<Functor>(f);
@@ -399,6 +379,7 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::position(Functor&& f
         {
             return std::make_optional(position);
         }
+        position += 1;
         nextItem = self().next();
     }
     return std::nullopt;
@@ -430,6 +411,31 @@ template <class T, class Derived>
 auto rusty_iterators::interface::IterInterface<T, Derived>::take(size_t amount) -> Take<T, Derived>
 {
     return Take<T, Derived>{std::forward<Derived>(self()), amount};
+}
+
+template <class T, class Derived>
+template <class B, class Functor>
+    requires rusty_iterators::concepts::TryFoldFunctor<B, T, Functor>
+auto rusty_iterators::interface::IterInterface<T, Derived>::tryFold(B&& init, Functor&& f) -> B
+{
+    sizeHintChecked();
+
+    auto func     = std::forward<Functor>(f);
+    auto accum    = std::forward<B>(init);
+    auto nextItem = self().next();
+
+    [[likely]] while (nextItem.has_value())
+    {
+        auto potentialAccum = func(std::move(accum), std::move(nextItem.value()));
+
+        if (potentialAccum.has_value())
+        {
+            return potentialAccum.value();
+        }
+        accum    = potentialAccum.error();
+        nextItem = self().next();
+    }
+    return std::move(accum);
 }
 
 template <class T, class Derived>

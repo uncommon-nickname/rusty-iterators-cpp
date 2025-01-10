@@ -7,6 +7,7 @@ clean_run=false
 compile_tests=false
 cxx_compiler="g++"
 compile_benchmarks=false
+compile_examples=false
 
 while [[ $# -gt 0 ]]; do
 	case $1 in
@@ -27,6 +28,10 @@ while [[ $# -gt 0 ]]; do
 		compile_benchmarks=true
 		shift
 		;;
+	--compile-examples)
+		compile_examples=true
+		shift
+		;;
 	*)
 		echo "Unknown option $1"
 		exit 1
@@ -41,6 +46,7 @@ echo "C++ Compiler        = ${cxx_compiler}"
 echo "Clean Run           = ${clean_run}"
 echo "Compile Tests       = ${compile_tests}"
 echo "Compile Benchmarks  = ${compile_benchmarks}"
+echo "Compile Examples    = ${compile_examples}"
 echo
 
 cmake \
@@ -48,6 +54,7 @@ cmake \
 	-D CMAKE_CXX_COMPILER="${cxx_compiler}" \
 	-D COMPILE_TESTS="${compile_tests}" \
 	-D COMPILE_BENCHMARKS="${compile_benchmarks}" \
+	-D COMPILE_EXAMPLES="${compile_examples}" \
 	-S "${repo_root}" \
 	-B build
 

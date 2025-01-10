@@ -39,3 +39,7 @@ if(${COMPILE_BENCHMARKS})
     set(CMAKE_BUILD_TYPE "Release")
     add_subdirectory(benchmarks)
 endif()
+
+if (${COMPILE_EXAMPLES})
+    add_subdirectory(examples)
+endif()

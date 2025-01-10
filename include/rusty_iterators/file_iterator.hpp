@@ -44,24 +44,25 @@ class FileIterator<FIterType::Buffered>
             fileLines.push_back(std::move(nextLine));
         }
         is.close();
+        ptr = fileLines.begin();
     };
 
     auto next() -> std::optional<std::string>
     {
-        [[unlikely]] if (ptr == fileLines.size())
+        [[unlikely]] if (ptr == fileLines.end())
         {
             return std::nullopt;
         }
-        auto line = fileLines.at(ptr);
+        auto line = *ptr;
         ptr += 1;
         return std::move(line);
     }
 
-    [[nodiscard]] auto sizeHint() const -> std::optional<size_t> { return fileLines.size(); }
+    [[nodiscard]] auto sizeHint() const -> std::optional<size_t> { return fileLines.end() - ptr; }
 
   private:
-    size_t ptr = 0;
     std::vector<std::string> fileLines{};
+    std::vector<std::string>::iterator ptr;
 };
 
 template <>

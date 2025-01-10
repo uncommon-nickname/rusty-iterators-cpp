@@ -35,7 +35,13 @@ We provide a small utility script to build the project. We use both CMake and Ni
 
 ## Examples
 
-Some simple examples of usage.
+Some actual real-life inspired examples can be found in the `examples/` directory. You can build them using provided build script:
+
+```bash
+./tools/build.sh --compile-examples
+```
+
+Here we will list some of the simple examples, to show you the power of lazy iteration!
 
 ### Count all even numbers in the iterator
 

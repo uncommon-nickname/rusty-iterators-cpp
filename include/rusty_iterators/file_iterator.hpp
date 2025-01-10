@@ -21,8 +21,6 @@ template <FIterType type>
 class FileIterator : public IterInterface<std::string, FileIterator<type>>
 {};
 
-// TODO: Perf.
-// With the buffered iterator a lot of iterator functions could be optimized.
 template <>
 class FileIterator<FIterType::Buffered>
     : public IterInterface<std::string, FileIterator<FIterType::Buffered>>
@@ -31,38 +29,34 @@ class FileIterator<FIterType::Buffered>
     explicit FileIterator(const std::string& filePath)
     {
         std::ifstream is{filePath};
-
         if (!is.is_open())
         {
             throw std::runtime_error{"Could not open the file."};
         }
-
         std::string nextLine;
-
         while (std::getline(is, nextLine))
         {
             fileLines.push_back(std::move(nextLine));
         }
         is.close();
-        ptr = fileLines.begin();
     };
 
     auto next() -> std::optional<std::string>
     {
-        [[unlikely]] if (ptr == fileLines.end())
+        [[unlikely]] if (ptr == fileLines.size())
         {
             return std::nullopt;
         }
-        auto line = *ptr;
+        auto line = fileLines.at(ptr);
         ptr += 1;
         return std::move(line);
     }
 
-    [[nodiscard]] auto sizeHint() const -> std::optional<size_t> { return fileLines.end() - ptr; }
+    [[nodiscard]] auto sizeHint() const -> std::optional<size_t> { return fileLines.size() - ptr; }
 
   private:
     std::vector<std::string> fileLines{};
-    std::vector<std::string>::iterator ptr;
+    size_t ptr = 0;
 };
 
 template <>
@@ -81,7 +75,6 @@ class FileIterator<FIterType::Lazy>
     auto next() -> std::optional<std::string>
     {
         std::string nextLine;
-
         [[unlikely]] if (!std::getline(is, nextLine))
         {
             return std::nullopt;

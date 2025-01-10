@@ -69,3 +69,24 @@ TEST(TestBufferedFileIterator, TestSizeHint)
 
     ASSERT_EQ(it.sizeHint(), 4);
 }
+
+TEST(TestBufferedFileIterator, TestSizeHintAfterConsumption)
+{
+    auto testFileName = std::string{"./tests/test_data.txt"};
+    auto it           = FileIterator<FIterType::Buffered>{testFileName}.advanceBy(2);
+
+    ASSERT_EQ(it.sizeHint(), 2);
+}
+
+TEST(TestBufferedFileIterator, TestCopyBufferedIterator)
+{
+    auto testFileName = std::string{"./tests/test_data.txt"};
+    auto it           = FileIterator<FIterType::Buffered>{testFileName};
+
+    it.next();
+    auto cp = it;
+    it.next();
+
+    EXPECT_THAT(it.collect(), ElementsAreArray({"3", "4"}));
+    EXPECT_THAT(cp.collect(), ElementsAreArray({"2", "3", "4"}));
+}

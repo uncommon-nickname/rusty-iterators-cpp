@@ -3,6 +3,7 @@
 #include "chain.hpp"
 #include "concepts.hpp"
 #include "cycle.hpp"
+#include "enumerate.hpp"
 #include "filter.hpp"
 #include "filter_map.hpp"
 #include "inspect.hpp"
@@ -37,6 +38,7 @@ using iterator::CacheCycle;
 using iterator::Chain;
 using iterator::CopyCycle;
 using iterator::CycleType;
+using iterator::Enumerate;
 using iterator::Filter;
 using iterator::FilterMap;
 using iterator::Inspect;
@@ -82,6 +84,8 @@ class IterInterface
 
     template <class Second>
     [[nodiscard]] auto chain(Second&& it) -> Chain<T, Derived, Second>;
+
+    [[nodiscard]] auto enumerate() -> Enumerate<T, Derived>;
 
     template <class Other>
     [[nodiscard]] auto eq(Other&& it) -> bool;
@@ -249,6 +253,12 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::chain(Second&& it)
     -> Chain<T, Derived, Second>
 {
     return Chain<T, Derived, Second>{std::forward<Derived>(self()), std::forward<Second>(it)};
+}
+
+template <class T, class Derived>
+auto rusty_iterators::interface::IterInterface<T, Derived>::enumerate() -> Enumerate<T, Derived>
+{
+    return Enumerate<T, Derived>{std::forward<Derived>(self())};
 }
 
 template <class T, class Derived>

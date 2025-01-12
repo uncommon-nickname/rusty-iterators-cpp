@@ -31,6 +31,9 @@ We provide a small utility script to build the project. We use both CMake and Ni
 
 # Cached build:
 ./tools/build.sh --compile-tests
+
+# Build in release mode
+./tools/build.sh --compile-tests --release
 ```
 
 ## Examples

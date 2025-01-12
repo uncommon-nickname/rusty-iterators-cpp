@@ -33,7 +33,6 @@ endif()
 
 if(${COMPILE_BENCHMARKS})
     set(BENCHMARK_ENABLE_GTEST_TESTS OFF)
-    set(CMAKE_BUILD_TYPE "Release")
     add_subdirectory(benchmarks)
 endif()
 

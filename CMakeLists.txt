@@ -9,6 +9,7 @@ project(
 
 option(COMPILE_TESTS "Boolean indicating if tests should be compiled")
 option(COMPILE_BENCHMARKS "Boolean indicating if benchmarks should be compiled")
+option(COMPILE_EXAMPLES "Boolean indicating if examples should be compiled")
 
 set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -21,9 +22,7 @@ set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}" "-config-file=${rusty-iterators_SOURC
 
 add_library(rusty_iterators INTERFACE)
 target_include_directories(rusty_iterators INTERFACE "${rusty-iterators_SOURCE_DIR}/include/")
-
 target_compile_features(rusty_iterators INTERFACE cxx_std_23)
-
 set_target_properties(rusty_iterators PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
 set_target_properties(rusty_iterators PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -33,9 +32,7 @@ if(${COMPILE_TESTS})
 endif()
 
 if(${COMPILE_BENCHMARKS})
-    # We don't really want to run benchmark tests, its faster.
     set(BENCHMARK_ENABLE_GTEST_TESTS OFF)
-    # We want to benchmark in the release mode.
     set(CMAKE_BUILD_TYPE "Release")
     add_subdirectory(benchmarks)
 endif()

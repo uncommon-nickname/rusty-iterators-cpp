@@ -47,6 +47,14 @@ TEST(TestLazyFileIterator, TestSumIterator)
     ASSERT_EQ(it.sum(), std::string{"1234"});
 }
 
+TEST(TestLazyFileIterator, TestCustomDelimiter)
+{
+    auto testFileName = std::string{"./tests/test_delim.txt"};
+    auto it           = FileIterator<FIterType::Lazy>{testFileName, ','};
+
+    EXPECT_THAT(it.collect(), ElementsAreArray({"1", "2", "3", "4", "5\n"}));
+}
+
 TEST(TestBufferedFileIterator, TestFileDoesNotExist)
 {
     auto testFileName = std::string{"./tests/abc.jpg"};
@@ -89,4 +97,12 @@ TEST(TestBufferedFileIterator, TestCopyBufferedIterator)
 
     EXPECT_THAT(it.collect(), ElementsAreArray({"3", "4"}));
     EXPECT_THAT(cp.collect(), ElementsAreArray({"2", "3", "4"}));
+}
+
+TEST(TestBufferedFileIterator, TestCustomDelimiter)
+{
+    auto testFileName = std::string{"./tests/test_delim.txt"};
+    auto it           = FileIterator<FIterType::Lazy>{testFileName, ','};
+
+    EXPECT_THAT(it.collect(), ElementsAreArray({"1", "2", "3", "4", "5\n"}));
 }

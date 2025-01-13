@@ -30,6 +30,7 @@ using concepts::Indexable;
 using concepts::InspectFunctor;
 using concepts::NeFunctor;
 using concepts::PositionFunctor;
+using concepts::ReduceFunctor;
 using concepts::Summable;
 using concepts::TryFoldFunctor;
 using concepts::TupleLike;
@@ -115,6 +116,8 @@ class IterInterface
         requires InspectFunctor<T, Functor>
     auto inspect(Functor&& f) -> Inspect<T, Functor, Derived>;
 
+    [[nodiscard]] auto last() -> std::optional<T>;
+
     template <class Functor>
         requires std::invocable<Functor, T&&>
     [[nodiscard]] auto map(Functor&& f) -> Map<T, Functor, Derived>;
@@ -143,7 +146,7 @@ class IterInterface
     [[nodiscard]] auto position(Functor&& f) -> std::optional<size_t>;
 
     template <class Functor>
-        requires FoldFunctor<T, T, Functor>
+        requires ReduceFunctor<T, Functor>
     [[nodiscard]] auto reduce(Functor&& f) -> std::optional<T>;
 
     template <class R = T>
@@ -343,6 +346,12 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::inspect(Functor&& f)
 }
 
 template <class T, class Derived>
+auto rusty_iterators::interface::IterInterface<T, Derived>::last() -> std::optional<T>
+{
+    return self().reduce([](auto _, auto x) { return x; });
+}
+
+template <class T, class Derived>
 template <class Functor>
     requires std::invocable<Functor, T&&>
 auto rusty_iterators::interface::IterInterface<T, Derived>::map(Functor&& f)
@@ -422,7 +431,7 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::position(Functor&& f
 
 template <class T, class Derived>
 template <class Functor>
-    requires rusty_iterators::concepts::FoldFunctor<T, T, Functor>
+    requires rusty_iterators::concepts::ReduceFunctor<T, Functor>
 auto rusty_iterators::interface::IterInterface<T, Derived>::reduce(Functor&& f) -> std::optional<T>
 {
     auto first = self().next();

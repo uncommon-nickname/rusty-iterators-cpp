@@ -26,7 +26,7 @@ class FileIterator<FIterType::Buffered>
     : public IterInterface<std::string, FileIterator<FIterType::Buffered>>
 {
   public:
-    explicit FileIterator(const std::string& filePath)
+    explicit FileIterator(const std::string& filePath, char delimiter = '\n')
     {
         std::ifstream is{filePath};
         if (!is.is_open())
@@ -34,7 +34,7 @@ class FileIterator<FIterType::Buffered>
             throw std::runtime_error{"Could not open the file."};
         }
         std::string nextLine;
-        while (std::getline(is, nextLine))
+        while (std::getline(is, nextLine, delimiter))
         {
             fileLines.push_back(std::move(nextLine));
         }
@@ -64,7 +64,8 @@ class FileIterator<FIterType::Lazy>
     : public IterInterface<std::string, FileIterator<FIterType::Lazy>>
 {
   public:
-    explicit FileIterator(const std::string& filePath) : is(filePath)
+    explicit FileIterator(const std::string& filePath, char delimiter = '\n')
+        : is(filePath), delimiter(delimiter)
     {
         if (!is.is_open())
         {
@@ -75,7 +76,7 @@ class FileIterator<FIterType::Lazy>
     auto next() -> std::optional<std::string>
     {
         std::string nextLine;
-        [[unlikely]] if (!std::getline(is, nextLine))
+        [[unlikely]] if (!std::getline(is, nextLine, delimiter))
         {
             return std::nullopt;
         }
@@ -90,5 +91,6 @@ class FileIterator<FIterType::Lazy>
 
   private:
     std::ifstream is;
+    char delimiter;
 };
 } // namespace rusty_iterators::iterator

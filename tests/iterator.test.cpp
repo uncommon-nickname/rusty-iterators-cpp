@@ -22,13 +22,15 @@ TEST(TestIterator, TestCopySavesIteratorState)
     auto vec = std::vector{1, 2, 3, 4};
 
     auto it = LazyIterator{vec};
+
     it.next();
     auto cp = it;
+    it.next();
 
     auto x = it.collect();
     auto y = cp.collect();
 
-    EXPECT_THAT(x, ElementsAreArray(std::array{2, 3, 4}));
+    EXPECT_THAT(x, ElementsAreArray(std::array{3, 4}));
     EXPECT_THAT(y, ElementsAreArray(std::array{2, 3, 4}));
 }
 

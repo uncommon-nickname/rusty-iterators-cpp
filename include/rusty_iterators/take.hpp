@@ -39,16 +39,8 @@ auto rusty_iterators::iterator::Take<T, Other>::next() -> std::optional<T>
     {
         return std::nullopt;
     }
-
-    auto nextItem = it.next();
-
-    if (!nextItem.has_value())
-    {
-        return std::nullopt;
-    }
-
     taken += 1;
-    return std::move(nextItem);
+    return std::move(it.next());
 }
 
 template <class T, class Other>

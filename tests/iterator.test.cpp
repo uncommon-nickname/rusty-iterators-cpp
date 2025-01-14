@@ -359,3 +359,19 @@ TEST(TestIterator, TestTryFoldEarlyExit)
 
     ASSERT_EQ(result, 6);
 }
+
+TEST(TestIterator, TestLastOnEmptyIterator)
+{
+    auto vec = std::vector<int>{};
+    auto it  = LazyIterator{vec};
+
+    ASSERT_EQ(it.last(), std::nullopt);
+}
+
+TEST(TestIterator, TestLast)
+{
+    auto vec = std::vector{1, 2, 3};
+    auto it  = LazyIterator{vec};
+
+    ASSERT_EQ(it.last(), 3);
+}

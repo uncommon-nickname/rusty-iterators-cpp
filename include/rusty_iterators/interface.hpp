@@ -9,6 +9,7 @@
 #include "inspect.hpp"
 #include "map.hpp"
 #include "moving_window.hpp"
+#include "skip.hpp"
 #include "take.hpp"
 #include "zip.hpp"
 
@@ -45,6 +46,7 @@ using iterator::FilterMap;
 using iterator::Inspect;
 using iterator::Map;
 using iterator::MovingWindow;
+using iterator::Skip;
 using iterator::Take;
 using iterator::Zip;
 
@@ -148,6 +150,8 @@ class IterInterface
     template <class Functor>
         requires ReduceFunctor<T, Functor>
     [[nodiscard]] auto reduce(Functor&& f) -> std::optional<T>;
+
+    [[nodiscard]] auto skip(size_t n) -> Skip<T, Derived>;
 
     template <class R = T>
         requires Summable<R>
@@ -441,6 +445,12 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::reduce(Functor&& f) 
         return std::nullopt;
     }
     return fold(std::move(first.value()), std::forward<Functor>(f));
+}
+
+template <class T, class Derived>
+auto rusty_iterators::interface::IterInterface<T, Derived>::skip(size_t n) -> Skip<T, Derived>
+{
+    return Skip<T, Derived>{std::forward<Derived>(self()), n};
 }
 
 template <class T, class Derived>

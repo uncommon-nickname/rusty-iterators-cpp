@@ -87,7 +87,9 @@ TEST(TestIteratorIntegration, TestWindowsOverCycle)
 TEST(TestIteratorIntegration, TestCycleAdvanceBy)
 {
     auto vec = std::vector{1, 2};
-    auto it  = LazyIterator{vec}.cycle().advanceBy(3);
+    auto it  = LazyIterator{vec}.cycle();
+
+    it.advanceBy(3);
 
     ASSERT_EQ(it.next().value(), 2);
     ASSERT_EQ(it.next().value(), 1);

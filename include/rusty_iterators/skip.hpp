@@ -29,9 +29,9 @@ auto rusty_iterators::iterator::Skip<T, Other>::next() -> std::optional<T>
 {
     [[unlikely]] if (n > 0)
     {
-        it = it.advanceBy(n);
-        n  = 0;
-        return std::move(it.next());
+        auto item = it.nth(n);
+        n         = 0;
+        return std::move(item);
     }
     return std::move(it.next());
 }

@@ -81,7 +81,9 @@ TEST(TestBufferedFileIterator, TestSizeHint)
 TEST(TestBufferedFileIterator, TestSizeHintAfterConsumption)
 {
     auto testFileName = std::string{"./tests/test_data.txt"};
-    auto it           = FileIterator<FIterType::Buffered>{testFileName}.advanceBy(2);
+    auto it           = FileIterator<FIterType::Buffered>{testFileName};
+
+    it.advanceBy(2);
 
     ASSERT_EQ(it.sizeHint(), 2);
 }

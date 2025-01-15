@@ -211,7 +211,9 @@ TEST(TestIterator, AllReturnsFalseIfOneDoesntFit)
 TEST(TestIterator, AdvanceByMovesIteratorPtr)
 {
     auto vec = std::vector{1, 2, 3, 4};
-    auto it  = LazyIterator{vec}.advanceBy(3);
+    auto it  = LazyIterator{vec};
+
+    it.advanceBy(3);
 
     ASSERT_EQ(it.next().value(), 4);
 }
@@ -219,7 +221,9 @@ TEST(TestIterator, AdvanceByMovesIteratorPtr)
 TEST(TestIterator, AdvanceByBiggerThanSize)
 {
     auto vec = std::vector{1, 2, 3};
-    auto it  = LazyIterator{vec}.advanceBy(4);
+    auto it  = LazyIterator{vec};
+
+    it.advanceBy(4);
 
     ASSERT_EQ(it.next(), std::nullopt);
 }

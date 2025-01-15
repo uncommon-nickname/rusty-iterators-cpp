@@ -64,7 +64,7 @@ class IterInterface
     IterInterface(IterInterface&&)                 = default;
     IterInterface& operator=(IterInterface&&)      = default;
 
-    [[nodiscard]] auto advanceBy(size_t amount) -> Derived;
+    auto advanceBy(size_t amount) -> void;
 
     template <class Functor>
         requires AnyFunctor<T, Functor>
@@ -183,14 +183,13 @@ class IterInterface
 } // namespace rusty_iterators::interface
 
 template <class T, class Derived>
-auto rusty_iterators::interface::IterInterface<T, Derived>::advanceBy(size_t amount) -> Derived
+auto rusty_iterators::interface::IterInterface<T, Derived>::advanceBy(size_t n) -> void
 {
-    for (size_t i = 0; i < amount; i++)
+    for (size_t i = 0; i < n; ++i)
     {
         [[unlikely]] if (!self().next().has_value())
             break;
     }
-    return std::move(self());
 }
 
 template <class T, class Derived>
@@ -222,8 +221,7 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::collect() -> std::ve
     auto size       = sizeHintChecked();
 
     collection.reserve(size);
-
-    forEach([&collection](auto&& x) { collection.push_back(std::move(x)); });
+    self().forEach([&collection](auto&& x) { collection.push_back(std::move(x)); });
 
     return std::move(collection);
 }
@@ -233,7 +231,7 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::count() -> size_t
 {
     size_t count = 0;
 
-    forEach([&count](auto&& _) { count += 1; });
+    self().forEach([&count](auto&& _) { count += 1; });
 
     return count;
 }
@@ -404,9 +402,10 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::neBy(Other&& it, Fun
 }
 
 template <class T, class Derived>
-auto rusty_iterators::interface::IterInterface<T, Derived>::nth(size_t element) -> std::optional<T>
+auto rusty_iterators::interface::IterInterface<T, Derived>::nth(size_t n) -> std::optional<T>
 {
-    return self().advanceBy(element).next();
+    self().advanceBy(n);
+    return self().next();
 }
 
 template <class T, class Derived>

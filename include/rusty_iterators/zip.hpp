@@ -18,7 +18,7 @@ class Zip : public IterInterface<std::tuple<T, R>, Zip<T, R, First, Second>>
         : first(std::forward<First>(f)), second(std::forward<Second>(s))
     {}
 
-    [[nodiscard]] auto advanceBy(size_t amount) -> Zip<T, R, First, Second>;
+    auto advanceBy(size_t amount) -> void;
     auto next() -> std::optional<std::tuple<T, R>>;
     [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;
 
@@ -29,13 +29,10 @@ class Zip : public IterInterface<std::tuple<T, R>, Zip<T, R, First, Second>>
 } // namespace rusty_iterators::iterator
 
 template <class T, class R, class First, class Second>
-auto rusty_iterators::iterator::Zip<T, R, First, Second>::advanceBy(size_t amount)
-    -> Zip<T, R, First, Second>
+auto rusty_iterators::iterator::Zip<T, R, First, Second>::advanceBy(size_t amount) -> void
 {
-    first  = first.advanceBy(amount);
-    second = second.advanceBy(amount);
-
-    return std::move(static_cast<Zip<T, R, First, Second>&>(*this));
+    first.advanceBy(amount);
+    second.advanceBy(amount);
 }
 
 template <class T, class R, class First, class Second>

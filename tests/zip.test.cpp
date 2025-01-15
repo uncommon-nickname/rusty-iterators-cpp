@@ -76,7 +76,9 @@ TEST(TestZipIterator, TestAdvanceBy)
     auto v1 = std::vector{1, 2, 3};
     auto v2 = std::vector{4, 5, 6};
 
-    auto it = LazyIterator{v1}.zip(LazyIterator{v2}).advanceBy(2);
+    auto it = LazyIterator{v1}.zip(LazyIterator{v2});
+
+    it.advanceBy(2);
 
     EXPECT_THAT(it.next().value(), FieldsAre(3, 6));
 }

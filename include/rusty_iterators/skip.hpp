@@ -42,9 +42,8 @@ auto rusty_iterators::iterator::Skip<T, Other>::sizeHint() const -> std::optiona
     auto underlyingSize = it.sizeHint();
 
     if (!underlyingSize.has_value())
-    {
         return std::nullopt;
-    }
+
     int32_t estimatedSize = underlyingSize.value() - n;
     return std::max(0, estimatedSize);
 }

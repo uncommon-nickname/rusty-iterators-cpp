@@ -37,9 +37,8 @@ auto rusty_iterators::iterator::Enumerate<T, Other>::next() -> std::optional<std
     auto nextItem = it.next();
 
     if (!nextItem.has_value())
-    {
         return std::nullopt;
-    }
+
     return std::tuple{idx++, std::move(nextItem.value())};
 }
 

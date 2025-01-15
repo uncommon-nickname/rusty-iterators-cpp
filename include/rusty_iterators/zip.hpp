@@ -41,15 +41,13 @@ auto rusty_iterators::iterator::Zip<T, R, First, Second>::next() -> std::optiona
     auto firstItem = first.next();
 
     if (!firstItem.has_value())
-    {
         return std::nullopt;
-    }
+
     auto secondItem = second.next();
 
     if (!secondItem.has_value())
-    {
         return std::nullopt;
-    }
+
     return std::tuple<T, R>{firstItem.value(), secondItem.value()};
 }
 
@@ -62,9 +60,8 @@ auto rusty_iterators::iterator::Zip<T, R, First, Second>::sizeHint() const -> st
     if (firstSize.has_value())
     {
         if (secondSize.has_value())
-        {
             return std::min(firstSize.value(), secondSize.value());
-        }
+
         return firstSize;
     }
     return secondSize;

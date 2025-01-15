@@ -423,9 +423,8 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::position(Functor&& f
     [[likely]] while (nextItem.has_value())
     {
         if (func(nextItem.value()))
-        {
             return position;
-        }
+
         position += 1;
         nextItem = self().next();
     }
@@ -440,9 +439,8 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::reduce(Functor&& f) 
     auto first = self().next();
 
     [[unlikely]] if (!first.has_value())
-    {
         return std::nullopt;
-    }
+
     return fold(std::move(first.value()), std::forward<Functor>(f));
 }
 
@@ -482,9 +480,8 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::tryFold(B&& init, Fu
         auto potentialAccum = func(std::move(accum), std::move(nextItem.value()));
 
         if (potentialAccum.has_value())
-        {
             return std::move(potentialAccum.value());
-        }
+
         accum    = potentialAccum.error();
         nextItem = self().next();
     }
@@ -559,9 +556,8 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::sizeHintChecked() ->
     auto size = self().sizeHint();
 
     [[likely]] if (size.has_value())
-    {
         return size.value();
-    }
+
     throw std::length_error{
         "Trying to collect an infinite iterator will result in an infinite loop."};
 }

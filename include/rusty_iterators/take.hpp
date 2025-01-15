@@ -17,9 +17,7 @@ class Take : public IterInterface<T, Take<T, Other>>
     Take(Other&& it, size_t size) : it(std::forward<Other>(it)), size(size)
     {
         if (size == 0)
-        {
             throw std::length_error{"You have to take at least one item."};
-        }
     }
 
     auto next() -> std::optional<T>;
@@ -36,9 +34,8 @@ template <class T, class Other>
 auto rusty_iterators::iterator::Take<T, Other>::next() -> std::optional<T>
 {
     if (taken == size)
-    {
         return std::nullopt;
-    }
+
     taken += 1;
     return std::move(it.next());
 }
@@ -50,8 +47,7 @@ auto rusty_iterators::iterator::Take<T, Other>::sizeHint() const -> std::optiona
     auto currSize = size - taken;
 
     if (!itSize.has_value())
-    {
         return currSize;
-    }
+
     return std::min(currSize, itSize.value());
 }

@@ -29,24 +29,23 @@ class FileIterator<FIterType::Buffered>
     explicit FileIterator(const std::string& filePath, char delimiter = '\n')
     {
         std::ifstream is{filePath};
+
         if (!is.is_open())
-        {
             throw std::runtime_error{"Could not open the file."};
-        }
+
         std::string nextLine;
+
         while (std::getline(is, nextLine, delimiter))
-        {
             fileLines.push_back(std::move(nextLine));
-        }
+
         is.close();
     };
 
     auto next() -> std::optional<std::string>
     {
         [[unlikely]] if (ptr == fileLines.size())
-        {
             return std::nullopt;
-        }
+
         auto line = fileLines.at(ptr);
         ptr += 1;
         return std::move(line);
@@ -68,18 +67,16 @@ class FileIterator<FIterType::Lazy>
         : is(filePath), delimiter(delimiter)
     {
         if (!is.is_open())
-        {
             throw std::runtime_error{"Could not open the file."};
-        }
     };
 
     auto next() -> std::optional<std::string>
     {
         std::string nextLine;
+
         [[unlikely]] if (!std::getline(is, nextLine, delimiter))
-        {
             return std::nullopt;
-        }
+
         return std::move(nextLine);
     }
 

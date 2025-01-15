@@ -18,9 +18,7 @@ class MovingWindow : public IterInterface<std::vector<T>, MovingWindow<T, Other>
         : it(std::forward<Other>(it)), orig(this->it), size(size)
     {
         if (size == 0)
-        {
             throw std::length_error{"Moving window size must be greater that zero."};
-        }
     }
 
     auto next() -> std::optional<std::vector<T>>;
@@ -44,9 +42,8 @@ auto rusty_iterators::iterator::MovingWindow<T, Other>::next() -> std::optional<
         auto nextItem = it.next();
 
         [[unlikely]] if (!nextItem.has_value())
-        {
             return std::nullopt;
-        }
+
         result.push_back(std::move(nextItem.value()));
     }
 
@@ -64,8 +61,7 @@ auto rusty_iterators::iterator::MovingWindow<T, Other>::sizeHint() const -> std:
     auto size = it.sizeHint();
 
     if (!size.has_value())
-    {
         return std::nullopt;
-    }
+
     return size.value() == 0 ? size : size.value() - 1;
 }

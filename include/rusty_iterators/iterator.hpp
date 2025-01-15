@@ -47,9 +47,7 @@ template <class Container>
 auto rusty_iterators::iterator::LazyIterator<Container>::next() -> std::optional<T>
 {
     [[unlikely]] if (ptr == end)
-    {
         return std::nullopt;
-    }
 
     auto& item = *ptr;
     ptr += 1;

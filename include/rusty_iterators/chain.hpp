@@ -37,15 +37,13 @@ template <class T, class First, class Second>
 auto rusty_iterators::iterator::Chain<T, First, Second>::next() -> std::optional<T>
 {
     if (useSecond)
-    {
         return second.next();
-    }
+
     auto nextItem = first.next();
 
     if (nextItem.has_value())
-    {
         return std::move(nextItem);
-    }
+
     useSecond = true;
     return next();
 }
@@ -58,8 +56,7 @@ auto rusty_iterators::iterator::Chain<T, First, Second>::sizeHint() const -> std
     auto sizeSecond = second.sizeHint();
 
     if (!sizeFirst.has_value() || !sizeSecond.has_value())
-    {
         return std::nullopt;
-    }
+
     return sizeFirst.value() + sizeSecond.value();
 }

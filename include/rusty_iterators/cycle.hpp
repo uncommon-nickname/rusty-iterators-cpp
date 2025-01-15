@@ -66,9 +66,8 @@ auto rusty_iterators::iterator::CopyCycle<T, Other>::sizeHint() const -> std::op
     auto size = it.sizeHint();
 
     if (size.has_value() && size.value() > 0)
-    {
         return std::nullopt;
-    }
+
     return 0;
 }
 
@@ -88,10 +87,9 @@ auto rusty_iterators::iterator::CacheCycle<T, Other>::next() -> std::optional<T>
     if (!nextItem.has_value())
     {
         if (cache.size() == 0)
-        {
             // If cycle is empty, we don't want to go into cached logic.
             return std::nullopt;
-        }
+
         useCache = true;
         return next();
     }
@@ -107,8 +105,7 @@ auto rusty_iterators::iterator::CacheCycle<T, Other>::sizeHint() const -> std::o
     auto size = it.sizeHint();
 
     if (size.has_value() && size.value() > 0)
-    {
         return std::nullopt;
-    }
+
     return 0;
 }

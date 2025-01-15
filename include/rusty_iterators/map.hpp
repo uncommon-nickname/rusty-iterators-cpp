@@ -44,9 +44,8 @@ auto rusty_iterators::iterator::Map<Tin, Functor, Other>::next() -> std::optiona
     auto item = it.next();
 
     [[likely]] if (item.has_value())
-    {
         return func(std::move(item.value()));
-    }
+
     return std::nullopt;
 }
 

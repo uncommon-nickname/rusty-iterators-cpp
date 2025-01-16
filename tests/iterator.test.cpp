@@ -379,3 +379,19 @@ TEST(TestIterator, TestLast)
 
     ASSERT_EQ(it.last(), 3);
 }
+
+TEST(TestIterator, TestLazyIteratorProduct)
+{
+    auto vec = std::vector{1, 2, 3, 4};
+    auto it  = LazyIterator{vec};
+
+    ASSERT_EQ(it.product(), 1 * 2 * 3 * 4);
+}
+
+TEST(TestIterator, TestProductOnMapIterator)
+{
+    auto vec = std::vector{1, 2, 3, 4};
+    auto it  = LazyIterator{vec}.map([](auto x) { return x * 2; });
+
+    ASSERT_EQ(it.product(), 2 * 4 * 6 * 8);
+}

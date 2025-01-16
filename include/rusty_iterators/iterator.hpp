@@ -34,6 +34,10 @@ class LazyIterator : public interface::IterInterface<Item<Container>, LazyIterat
     [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;
 
     template <class R = RawT>
+        requires Multiplyable<R>
+    [[nodiscard]] auto product() -> std::optional<R>;
+
+    template <class R = RawT>
         requires Summable<R>
     [[nodiscard]] auto sum() -> R;
 
@@ -66,8 +70,17 @@ auto rusty_iterators::iterator::LazyIterator<Container>::sizeHint() const -> std
 template <class Container>
     requires std::ranges::range<Container>
 template <class R>
+    requires rusty_iterators::concepts::Multiplyable<R>
+auto rusty_iterators::iterator::LazyIterator<Container>::product() -> std::optional<R>
+{
+    return this->map([](auto x) { return x.get(); }).product();
+}
+
+template <class Container>
+    requires std::ranges::range<Container>
+template <class R>
     requires rusty_iterators::concepts::Summable<R>
 auto rusty_iterators::iterator::LazyIterator<Container>::sum() -> R
 {
-    return this->fold(RawT{}, [](auto acc, auto x) { return acc + x; });
+    return this->map([](auto x) { return x.get(); }).sum();
 }

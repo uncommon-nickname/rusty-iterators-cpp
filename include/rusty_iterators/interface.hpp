@@ -30,6 +30,7 @@ using concepts::FoldFunctor;
 using concepts::ForEachFunctor;
 using concepts::Indexable;
 using concepts::InspectFunctor;
+using concepts::Multiplyable;
 using concepts::NeFunctor;
 using concepts::PositionFunctor;
 using concepts::ReduceFunctor;
@@ -148,6 +149,10 @@ class IterInterface
     template <class Functor>
         requires PositionFunctor<T, Functor>
     [[nodiscard]] auto position(Functor&& f) -> std::optional<size_t>;
+
+    template <class R = T>
+        requires Multiplyable<R>
+    [[nodiscard]] auto product() -> std::optional<R>;
 
     template <class Functor>
         requires ReduceFunctor<T, Functor>
@@ -432,6 +437,14 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::position(Functor&& f
         nextItem = self().next();
     }
     return std::nullopt;
+}
+
+template <class T, class Derived>
+template <class R>
+    requires rusty_iterators::concepts::Multiplyable<R>
+auto rusty_iterators::interface::IterInterface<T, Derived>::product() -> std::optional<R>
+{
+    return self().reduce([](auto acc, auto x) { return acc * x; });
 }
 
 template <class T, class Derived>

@@ -10,6 +10,7 @@
 #include "map.hpp"
 #include "moving_window.hpp"
 #include "skip.hpp"
+#include "step_by.hpp"
 #include "take.hpp"
 #include "zip.hpp"
 
@@ -47,6 +48,7 @@ using iterator::Inspect;
 using iterator::Map;
 using iterator::MovingWindow;
 using iterator::Skip;
+using iterator::StepBy;
 using iterator::Take;
 using iterator::Zip;
 
@@ -152,6 +154,7 @@ class IterInterface
     [[nodiscard]] auto reduce(Functor&& f) -> std::optional<T>;
 
     [[nodiscard]] auto skip(size_t n) -> Skip<T, Derived>;
+    [[nodiscard]] auto stepBy(size_t step) -> StepBy<T, Derived>;
 
     template <class R = T>
         requires Summable<R>
@@ -448,6 +451,13 @@ template <class T, class Derived>
 auto rusty_iterators::interface::IterInterface<T, Derived>::skip(size_t n) -> Skip<T, Derived>
 {
     return Skip<T, Derived>{std::forward<Derived>(self()), n};
+}
+
+template <class T, class Derived>
+auto rusty_iterators::interface::IterInterface<T, Derived>::stepBy(size_t step)
+    -> StepBy<T, Derived>
+{
+    return StepBy<T, Derived>{std::forward<Derived>(self()), step};
 }
 
 template <class T, class Derived>

@@ -16,6 +16,7 @@ using Item = std::reference_wrapper<const typename Container::value_type>;
 namespace rusty_iterators::iterator
 {
 using concepts::FoldFunctor;
+using concepts::Multiplyable;
 using concepts::Summable;
 
 template <class Container>

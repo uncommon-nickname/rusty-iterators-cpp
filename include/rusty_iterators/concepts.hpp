@@ -60,6 +60,11 @@ concept InspectFunctor = requires(Functor f, T& t) {
 template <class T, class Functor>
 concept PositionFunctor = AllFunctor<T, Functor>;
 
+template <class T>
+concept Multiplyable = requires(T first, T second) {
+    { first* second } -> std::same_as<T>;
+};
+
 template <class T, class Functor>
 concept ReduceFunctor = FoldFunctor<T, T, Functor>;
 

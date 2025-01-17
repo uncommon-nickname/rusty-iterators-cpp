@@ -7,6 +7,7 @@
 #include "filter.hpp"
 #include "filter_map.hpp"
 #include "inspect.hpp"
+#include "interperse.hpp"
 #include "map.hpp"
 #include "moving_window.hpp"
 #include "skip.hpp"
@@ -46,6 +47,7 @@ using iterator::Enumerate;
 using iterator::Filter;
 using iterator::FilterMap;
 using iterator::Inspect;
+using iterator::Interperse;
 using iterator::Map;
 using iterator::MovingWindow;
 using iterator::Skip;
@@ -119,8 +121,9 @@ class IterInterface
 
     template <class Functor>
         requires InspectFunctor<T, Functor>
-    auto inspect(Functor&& f) -> Inspect<T, Functor, Derived>;
+    [[nodiscard]] auto inspect(Functor&& f) -> Inspect<T, Functor, Derived>;
 
+    [[nodiscard]] auto interperse(T&& item) -> Interperse<T, Derived>;
     [[nodiscard]] auto last() -> std::optional<T>;
 
     template <class Functor>
@@ -353,6 +356,13 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::inspect(Functor&& f)
     -> Inspect<T, Functor, Derived>
 {
     return Inspect<T, Functor, Derived>{std::forward<Derived>(self()), std::forward<Functor>(f)};
+}
+
+template <class T, class Derived>
+auto rusty_iterators::interface::IterInterface<T, Derived>::interperse(T&& item)
+    -> Interperse<T, Derived>
+{
+    return Interperse<T, Derived>{std::forward<Derived>(self()), std::forward<T>(item)};
 }
 
 template <class T, class Derived>

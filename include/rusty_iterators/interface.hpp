@@ -10,6 +10,7 @@
 #include "interperse.hpp"
 #include "map.hpp"
 #include "moving_window.hpp"
+#include "peekable.hpp"
 #include "skip.hpp"
 #include "step_by.hpp"
 #include "take.hpp"
@@ -50,6 +51,7 @@ using iterator::Inspect;
 using iterator::Interperse;
 using iterator::Map;
 using iterator::MovingWindow;
+using iterator::Peekable;
 using iterator::Skip;
 using iterator::StepBy;
 using iterator::Take;
@@ -148,6 +150,7 @@ class IterInterface
     [[nodiscard]] auto neBy(Other&& it, Functor&& f) -> bool;
 
     [[nodiscard]] auto nth(size_t element) -> std::optional<T>;
+    [[nodiscard]] auto peekable() -> Peekable<T, Derived>;
 
     template <class Functor>
         requires PositionFunctor<T, Functor>
@@ -424,6 +427,12 @@ auto rusty_iterators::interface::IterInterface<T, Derived>::nth(size_t n) -> std
 {
     self().advanceBy(n);
     return self().next();
+}
+
+template <class T, class Derived>
+auto rusty_iterators::interface::IterInterface<T, Derived>::peekable() -> Peekable<T, Derived>
+{
+    return Peekable<T, Derived>{std::forward<Derived>(self())};
 }
 
 template <class T, class Derived>

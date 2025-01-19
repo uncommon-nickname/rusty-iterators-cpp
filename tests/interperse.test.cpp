@@ -16,7 +16,6 @@ TEST(TestInterperseIterator, TestNextReturnsInterpersed)
     ASSERT_EQ(it.next(), 1);
     ASSERT_EQ(it.next(), 5);
     ASSERT_EQ(it.next(), 2);
-    ASSERT_EQ(it.next(), 5);
     ASSERT_EQ(it.next(), std::nullopt);
 }
 
@@ -27,7 +26,7 @@ TEST(TestInterperseIterator, TestCollectReturnsAllValues)
     auto item = 5;
     auto it   = LazyIterator{vec}.interperse(std::cref(item));
 
-    EXPECT_THAT(it.collect(), ElementsAreArray({1, 5, 2, 5, 3, 5}));
+    EXPECT_THAT(it.collect(), ElementsAreArray({1, 5, 2, 5, 3}));
 }
 
 TEST(TestInterperseIterator, TestSizeHintIsDoubled)
@@ -37,5 +36,15 @@ TEST(TestInterperseIterator, TestSizeHintIsDoubled)
     auto item = 5;
     auto it   = LazyIterator{vec}.interperse(std::cref(item));
 
-    ASSERT_EQ(it.sizeHint(), 6);
+    ASSERT_EQ(it.sizeHint(), 5);
+}
+
+TEST(TestInterperseIterator, TestEmptyIteratorSizeIsZero)
+{
+    auto vec = std::vector<int>{};
+
+    auto item = 5;
+    auto it   = LazyIterator{vec}.interperse(std::cref(item));
+
+    ASSERT_EQ(it.sizeHint(), 0);
 }

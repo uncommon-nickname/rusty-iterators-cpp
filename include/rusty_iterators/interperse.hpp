@@ -1,7 +1,9 @@
 #pragma once
 
 #include "interface.fwd.hpp"
+#include "peekable.hpp"
 
+#include <algorithm>
 #include <optional>
 
 namespace rusty_iterators::iterator
@@ -13,35 +15,38 @@ class Interperse : public IterInterface<T, Interperse<T, Other>>
 {
   public:
     explicit Interperse(Other&& it, T&& item)
-        : it(std::forward<Other>(it)), item(std::forward<T>(item))
+        : it(std::forward<Peekable<T, Other>>(it.peekable())), item(std::forward<T>(item))
     {}
 
     auto next() -> std::optional<T>;
     [[nodiscard]] auto sizeHint() const -> std::optional<size_t>;
 
   private:
-    Other it;
+    Peekable<T, Other> it;
     T item;
-    bool interperse = false;
+    bool returnInterperseValue = false;
 };
 } // namespace rusty_iterators::iterator
 
 template <class T, class Other>
 auto rusty_iterators::iterator::Interperse<T, Other>::next() -> std::optional<T>
 {
-    if (interperse)
+    /// NOTE: 18.01.2025 <@uncommon-nickname>
+    /// We need to check if iterator is finished. By using a peekable
+    /// iterator, we can do that without any significant cost, because
+    /// we will advance the iterator anyway later.
+    auto peeked = it.peek();
+
+    [[unlikely]] if (!peeked.has_value())
+        return std::nullopt;
+
+    if (returnInterperseValue)
     {
-        interperse = false;
+        returnInterperseValue = false;
         return item;
     }
-
-    auto nextItem = it.next();
-
-    if (!nextItem.has_value())
-        return std::move(nextItem);
-
-    interperse = true;
-    return std::move(nextItem);
+    returnInterperseValue = true;
+    return std::move(it.next());
 }
 
 template <class T, class Other>
@@ -52,5 +57,7 @@ auto rusty_iterators::iterator::Interperse<T, Other>::sizeHint() const -> std::o
     if (!underlyingSize.has_value())
         return std::nullopt;
 
-    return underlyingSize.value() * 2;
+    int32_t potentialSize = (underlyingSize.value() * 2) - 1;
+
+    return std::max(0, potentialSize);
 }
